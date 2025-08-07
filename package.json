@@ -7,12 +7,15 @@
     "XML",
     "JS"
   ],
+  "bin": {
+    "xsd2js": "./src/main.js"
+  },
   "license": "Apache-2.0",
   "author": "Rémy BERAUD",
   "type": "module",
-  "main": "index.js",
+  "main": "main.js",
   "scripts": {
-    "test": "node ./src/generator.js -i ./examples/UANodeSet.xsd -o ./examples/generated -m --XSD-type --XML-type --transparent-attributes"
+    "test": "node ./src/main.js -i ./examples/UANodeSet.xsd -o ./examples/generated -multiple-files --XSD-type --XML-type --transparent-attributes"
   },
   "dependencies": {
     "fast-xml-parser": "^5.2.5",
