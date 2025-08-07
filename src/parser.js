@@ -75,6 +75,19 @@ export function parseXsd(schemaObj) {
     }
   });
 
+  // process top-level elements with inline complexType
+  const elements = ensureArray(schema[`${XSD_PREFIX}element`]);
+  elements.forEach((el) => {
+    if (el[`${XSD_PREFIX}complexType`]) {
+      // Fake a typeDef with the element's name
+      const typeDef = {
+        ...el[`${XSD_PREFIX}complexType`],
+        "@_name": el["@_name"],
+      };
+      complexTypes.push(typeDef);
+    }
+  });
+
   return {
     complexTypes,
     simpleTypes: [...simpleTypes, ...inlineSimpleTypes],

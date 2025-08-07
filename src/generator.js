@@ -223,6 +223,23 @@ export function buildClassCode(typeDef, config, schemaObj) {
 
   const complexContent = typeDef[`${XSD_PREFIX}complexContent`];
   const schema = schemaObj[`${XSD_PREFIX}schema`];
+
+  // Existing: process named complexTypes
+  const complexTypes = ensureArray(schema[`${XSD_PREFIX}complexType`]);
+
+  // NEW: process top-level elements with inline complexType
+  const elements = ensureArray(schema[`${XSD_PREFIX}element`]);
+  elements.forEach((el) => {
+    if (el[`${XSD_PREFIX}complexType`]) {
+      // Fake a typeDef with the element's name
+      const typeDef = {
+        ...el[`${XSD_PREFIX}complexType`],
+        "@_name": el["@_name"],
+      };
+      complexTypes.push(typeDef);
+    }
+  });
+
   const groupMap = buildGroupMap(schema, "group");
   const attrGroupMap = buildGroupMap(schema, "attributeGroup");
 
@@ -303,50 +320,116 @@ ${metaMethod}
  * @param {object} typeDef - A simpleType definition.
  * @returns {{typeName: string, code: string}}
  */
-export function buildSimpleTypeCode(typeDef) {
+export function buildSimpleTypeCode(typeDef, config) {
   const typeName = typeDef["@_name"];
   const restriction = typeDef[`${XSD_PREFIX}restriction`];
   const union = typeDef[`${XSD_PREFIX}union`];
   const list = typeDef[`${XSD_PREFIX}list`];
 
+  // Helper to build meta info for the value property
+  function buildMeta(type, isAttribute = false) {
+    const metaObj = {
+      value: {
+        xmlName: "value",
+        ...(config["XSD-type"] && {xsdType: type}),
+        ...(config["XML-type"] && {isAttribute}),
+      },
+    };
+    return `
+    static #__xsdMeta = ${JSON.stringify(metaObj, null, 4)};
+    static __getXSDMeta() { return this.#__xsdMeta; }
+        `;
+  }
+
+  // Enum case
   if (restriction?.[`${XSD_PREFIX}enumeration`]) {
     const enums = ensureArray(restriction[`${XSD_PREFIX}enumeration`]);
     const values = enums.map((e) => `'${e["@_value"]}'`).join(", ");
+    const baseType = restriction["@_base"]
+      ? restriction["@_base"].replace(/^.*:/, "")
+      : "string";
     return {
       typeName,
-      code: `export const ${typeName} = Object.freeze([${values}]); // enum`,
+      code: `
+export class ${typeName} {
+    /**
+     * @param {string} value
+     */
+    constructor(value) {
+        this.value = value;
+    }
+    static get values() { return [${values}]; }
+${buildMeta(baseType)}
+}
+`,
     };
   }
 
+  // Union case
   if (union && union["@_memberTypes"]) {
-    // Union of types
     const types = union["@_memberTypes"]
       .split(/\s+/)
       .map((t) => t.replace(/^.*:/, ""));
     return {
       typeName,
-      code: `export type ${typeName} = ${types.join(" | ")}; // union`,
+      code: `
+export class ${typeName} {
+    /**
+     * @param {any} value
+     */
+    constructor(value) {
+        this.value = value;
+    }
+    // Allowed types: ${types.join(" | ")}
+${buildMeta(types.join(" | "))}
+}
+`,
     };
   }
 
+  // List case
   if (list && list["@_itemType"]) {
-    // List of a type
     const itemType = list["@_itemType"].replace(/^.*:/, "");
     return {
       typeName,
-      code: `export type ${typeName} = ${itemType}[]; // list`,
+      code: `
+export class ${typeName} {
+    /**
+     * @param {Array<${itemType}>} value
+     */
+    constructor(value) {
+        this.value = Array.isArray(value) ? value : [value];
+    }
+${buildMeta(itemType + "[]")}
+}
+`,
     };
   }
 
+  // Restriction/alias case
   if (restriction?.["@_base"]) {
-    const baseType = restriction["@_base"];
+    const baseType = restriction["@_base"].replace(/^.*:/, "");
     return {
       typeName,
-      code: `// Type alias for ${baseType}\nexport type ${typeName} = ${baseType};`,
+      code: `
+export class ${typeName} {
+    /**
+     * @param {${baseType}} value
+     */
+    constructor(value) {
+        this.value = value;
+    }
+${buildMeta(baseType)}
+}
+`,
     };
   }
 
-  return {typeName, code: `// Unknown simpleType structure for: ${typeName}`};
+  // Fallback
+  return {
+    typeName,
+    code: `// Unknown simpleType structure for: ${typeName}`,
+  };
 }
 
 /**
