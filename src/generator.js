@@ -31,8 +31,10 @@ function extractProperties(
 ) {
   const properties = [];
 
+  const textAttrName = config["text-attribute-name"] || "value";
+
   // Helper to process a single element or attribute
-  const processItem = (item, isAttribute = false) => {
+  const processItem = (item, isAttribute = false, forceList = false) => {
     if (!item) return;
     // xs:any and xs:anyAttribute
     if (
@@ -61,7 +63,8 @@ function extractProperties(
       name: userFacingName,
       xmlName: originalName,
       type: item["@_type"],
-      isList: !isAttribute && item["@_maxOccurs"] === "unbounded",
+      isList:
+        forceList || (!isAttribute && item["@_maxOccurs"] === "unbounded"),
       xsdType: item["@_type"],
       isAttribute,
       nillable: item["@_nillable"] === "true",
@@ -71,6 +74,7 @@ function extractProperties(
   // Helper to process a group (sequence, choice, all, group, any)
   function processGroup(group) {
     if (!group) return;
+
     // xs:group reference
     if (group["@_ref"]) {
       const groupName = group["@_ref"];
@@ -87,21 +91,94 @@ function extractProperties(
       }
       return;
     }
+
     // xs:any
     if (group[`${XSD_PREFIX}any`]) {
       processItem(group[`${XSD_PREFIX}any`], false);
     }
+
+    // xs:choice
+    if (group[`${XSD_PREFIX}choice`]) {
+      const choice = group[`${XSD_PREFIX}choice`];
+      const choiceElements = ensureArray(choice[`${XSD_PREFIX}element`]);
+      const isUnbounded =
+        choice["@_maxOccurs"] === "unbounded" ||
+        group["@_maxOccurs"] === "unbounded";
+      // Generate a single property for the choice group
+      properties.push({
+        name: "choiceItems",
+        xmlName: "choiceItems",
+        type: choiceElements
+          .map((el) => el["@_type"] || el["@_name"])
+          .join(" | "),
+        isList: isUnbounded,
+        xsdType: choiceElements
+          .map((el) => el["@_type"] || el["@_name"])
+          .join(" | "),
+        isAttribute: false,
+        isChoice: true,
+        choiceElements: choiceElements.map((el) => ({
+          name: el["@_name"],
+          type: el["@_type"] || el["@_name"],
+        })),
+      });
+      // Optionally, you can also process each element in the choice individually if you want separate properties
+      // choiceElements.forEach(el => processItem(el, false));
+    }
+
+    // xs:element
     ensureArray(group[`${XSD_PREFIX}element`]).forEach((el) =>
       processItem(el, false)
     );
+    // Nested xs:group
     ensureArray(group[`${XSD_PREFIX}group`]).forEach((gr) => processGroup(gr));
   }
 
-  // Process xs:sequence, xs:choice, xs:all, xs:group
-  processGroup(typeNode?.[`${XSD_PREFIX}sequence`]);
-  processGroup(typeNode?.[`${XSD_PREFIX}choice`]);
-  processGroup(typeNode?.[`${XSD_PREFIX}all`]);
-  processGroup(typeNode?.[`${XSD_PREFIX}group`]);
+  // Recursive helper to process content models (sequence, choice, etc.)
+  const processContentModel = (node) => {
+    if (!node) return;
+
+    // Process elements directly under the node
+    ensureArray(node[`${XSD_PREFIX}element`]).forEach((el) => {
+      processItem(el, false);
+    });
+
+    // Process choices: flatten their elements into the parent
+    ensureArray(node[`${XSD_PREFIX}choice`]).forEach((choice) => {
+      const isUnboundedChoice = choice["@_maxOccurs"] === "unbounded";
+      // Process each element within the choice
+      ensureArray(choice[`${XSD_PREFIX}element`]).forEach((el) => {
+        processItem(el, false, isUnboundedChoice);
+      });
+      // Recurse for nested structures inside a choice (like a nested group)
+      processContentModel(choice);
+    });
+
+    // Process sequences: just recurse into them
+    ensureArray(node[`${XSD_PREFIX}sequence`]).forEach((sequence) => {
+      processContentModel(sequence);
+    });
+
+    // Process group references
+    ensureArray(node[`${XSD_PREFIX}group`]).forEach((groupRef) => {
+      if (groupRef["@_ref"]) {
+        const groupName = groupRef["@_ref"].replace(/^.*:/, "");
+        const groupDef = groupMap[groupName];
+        if (groupDef) {
+          processContentModel(groupDef); // Recurse into the referenced group definition
+        }
+      }
+    });
+  };
+
+  // Start processing from the main type definition node
+  processContentModel(typeNode);
+
+  // Also handle extensions
+  const complexContent = typeNode[`${XSD_PREFIX}complexContent`];
+  if (complexContent && complexContent[`${XSD_PREFIX}extension`]) {
+    processContentModel(complexContent[`${XSD_PREFIX}extension`]);
+  }
 
   // Process attributes and attributeGroups
   ensureArray(typeNode?.[`${XSD_PREFIX}attribute`]).forEach((attr) =>
@@ -134,8 +211,8 @@ function extractProperties(
     const extension = simpleContent[`${XSD_PREFIX}extension`];
     // Add the value property
     properties.push({
-      name: "value",
-      xmlName: "value",
+      name: textAttrName,
+      xmlName: "#text",
       type: extension["@_base"]
         ? extension["@_base"].replace(/^.*:/, "")
         : "string",
@@ -147,6 +224,18 @@ function extractProperties(
     ensureArray(extension[`${XSD_PREFIX}attribute`]).forEach((attr) =>
       processItem(attr, true)
     );
+  }
+
+  // Check for text node
+  const xmlName = typeNode["@_name"];
+  if (xmlName === "#text") {
+    properties.push({
+      name: textAttrName,
+      xmlName: "#text",
+      type: "any",
+      isAttribute: false,
+      nillable: "true",
+    });
   }
 
   return properties;
@@ -162,15 +251,27 @@ function buildConstructor(properties, dependencies) {
   return properties
     .map((prop) => {
       if (XSD_TYPE_TO_JS[prop.type]) {
+        if (prop.isAttribute && prop.xmlName !== prop.name) {
+          // Try both transparent and original XML attribute name
+          return `this.${prop.name} = data["${prop.xmlName}"];`;
+        }
         return `this.${prop.name} = data.${prop.name};`;
       }
       if (prop.type) {
         const dependencyName = prop.type.split(":").pop();
         dependencies.add(dependencyName);
         if (prop.isList) {
+          // Handle both single items and arrays from the parser gracefully.
           return `this.${prop.name} = data.${prop.name} ? [].concat(data.${prop.name}).map(item => new ${dependencyName}(item)) : [];`;
         }
-        return `this.${prop.name} = data.${prop.name} ? new ${dependencyName}(data.${prop.name}) : undefined;`;
+
+        let output = `this.${prop.name} = data["${prop.xmlName}"] ? new ${dependencyName}(data["${prop.xmlName}"]) : undefined;`;
+
+        if (dependencyName == "dateTime") {
+          output = `this.${prop.name} = data["${prop.xmlName}"] ? data["${prop.xmlName}"] : undefined;`;
+        }
+
+        return output;
       }
       return `// WARNING: Property "${prop.name}" has no type defined.\nthis.${prop.name} = data.${prop.name};`;
     })
@@ -195,13 +296,20 @@ function buildMetadata(properties, config) {
 
   const metaObj = {};
   properties.forEach((p) => {
-    metaObj[p.name] = {
-      xmlName: p.xmlName || p.name,
-      ...(config["XSD-type"] && {xsdType: p.xsdType}),
-      ...(config["XML-type"] && {isAttribute: p.isAttribute}),
-    };
+    if (p.xmlName === "#text") {
+      metaObj[p.name] = {
+        xmlName: p.xmlName,
+        xsdType: p.xsdType,
+        isAttribute: false,
+      };
+    } else {
+      metaObj[p.name] = {
+        xmlName: p.xmlName || p.name,
+        ...(config["XSD-type"] && {xsdType: p.xsdType}),
+        ...(config["XML-type"] && {isAttribute: p.isAttribute}),
+      };
+    }
   });
-
   return `
         static #__xsdMeta = ${JSON.stringify(metaObj, null, 4)};
         static __getXSDMeta() { return this.#__xsdMeta; }

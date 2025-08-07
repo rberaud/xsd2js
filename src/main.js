@@ -93,6 +93,12 @@ function parseArguments() {
         'Tag in template for the header (e.g., "tag-header"). Everything will be replaced with the import code, between the <tag-header> and </tag-header> tags.',
       type: "string",
     })
+    .option("text-attribute-name", {
+      describe:
+        "Property name to use for XML text nodes (#text). Default is 'value'.",
+      type: "string",
+      default: "value",
+    })
     .check((argv) => {
       if (!fs.existsSync(argv.input)) {
         throw new Error(`Input file not found: ${argv.input}`);
