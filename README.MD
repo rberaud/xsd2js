@@ -12,11 +12,19 @@ cd xsd2js
 npm install
 ```
 
+you can also install the tool from npm
+
+```bash
+npm install xsd2js -g
+```
+
 ## 🚀 Usage
 
 ```bash
-node index.js -i <input.xsd> -o <output_path> [options]
+xsd2js -i <input.xsd> -o <output_path> [options]
 ```
+
+Please note that the `xsd2js` shortcut is bound to `node ./src/main.js`
 
 ## 📚 Options
 
@@ -64,6 +72,10 @@ Use a custom base class:
 xsd2js -i schema.xsd -o ./output -b ./Base.js
 ```
 
+## 📎 How to use the generated files
+
+Unless you provide your own template file using options like `--template-file`, you can reuse the generated files with the `./template/base.js` file provided. This class is a root class for every generated class, and it provides basic marshalling/unmarshalling features to/from XML
+
 ## 📎 Notes
 
 - XML attributes are prefixed with `@_` by default unless `--transparent-attributes` is enabled.
@@ -77,3 +89,12 @@ Depending on your options, the output will be:
 - A single `.js` file with all generated classes.
 - Multiple `.js` files in a directory (when `--multiple-files` is enabled).
 - Each class will be based on a default or custom `Base.js` class, if provided.
+
+## 🛠 Tests
+
+```bash
+cd examples
+xsd2js --i ./UANodeSet.xsd -o ./references --m --transparent-attributes --XSD-type--XML-type
+```
+
+A set of OPC-UA js files should be generated in the `examples/references` folder.

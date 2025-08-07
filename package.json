@@ -1,6 +1,6 @@
 {
   "name": "xsd2js",
-  "version": "1.0.0",
+  "version": "1.0.2",
   "description": "A simple XSD to JS file generator, with serialization/unserialization",
   "keywords": [
     "XSD",
@@ -13,11 +13,11 @@
   "license": "Apache-2.0",
   "author": "Rémy BERAUD",
   "type": "module",
-  "main": "main.js",
+  "main": "./src/main.js",
   "scripts": {
     "test": "node ./src/main.js -i ./examples/UANodeSet.xsd -o ./examples/generated -multiple-files --XSD-type --XML-type --transparent-attributes"
   },
-    "repository": {
+  "repository": {
     "type": "git",
     "url": "git+https://github.com/rberaud/xsd2js"
   },
