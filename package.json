@@ -1,6 +1,6 @@
 {
   "name": "xsd2js",
-  "version": "1.0.2",
+  "version": "1.0.4,
   "description": "A simple XSD to JS file generator, with serialization/unserialization",
   "keywords": [
     "XSD",
