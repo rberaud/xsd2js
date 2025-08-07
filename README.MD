@@ -7,8 +7,8 @@ This command-line tool generates JavaScript classes from an XML Schema Definitio
 Clone the repository and install dependencies (if any):
 
 ```bash
-git clone <your-repo-url>
-cd <your-project-folder>
+git clone https://github.com/rberaud/xsd2js
+cd xsd2js
 npm install
 ```
 
