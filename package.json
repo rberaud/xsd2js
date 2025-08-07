@@ -17,6 +17,10 @@
   "scripts": {
     "test": "node ./src/main.js -i ./examples/UANodeSet.xsd -o ./examples/generated -multiple-files --XSD-type --XML-type --transparent-attributes"
   },
+    "repository": {
+    "type": "git",
+    "url": "git+https://github.com/rberaud/xsd2js"
+  }
   "dependencies": {
     "fast-xml-parser": "^5.2.5",
     "fs": "^0.0.1-security",

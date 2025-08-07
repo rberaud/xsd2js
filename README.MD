@@ -61,7 +61,7 @@ node index.js -i schema.xsd -o ./output -m \
 Use a custom base class:
 
 ```bash
-node index.js -i schema.xsd -o ./output -b ./Base.js
+xsd2js -i schema.xsd -o ./output -b ./Base.js
 ```
 
 ## 📎 Notes
