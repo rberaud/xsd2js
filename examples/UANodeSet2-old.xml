@@ -1,0 +1,213 @@
+<?xml version="1.0" encoding="utf-8"?>
+<UANodeSet xmlns="http://opcfoundation.org/UA/2011/03/UANodeSet.xsd"
+           xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+           LastModified="2025-08-10T12:00:00Z">
+
+    <!-- 1. Namespaces & Models -->
+    <NamespaceUris>
+        <Uri>http://opcfoundation.org/UA/</Uri> <!-- Default NS 0 -->
+        <Uri>http://mycompany.com/my-nodeset/</Uri> <!-- My NS 1 -->
+        <Uri>http://mycompany.com/another-nodeset/</Uri> <!-- My NS 2 -->
+    </NamespaceUris>
+
+    <Models>
+        <Model ModelUri="http://mycompany.com/my-nodeset/" Version="1.0.0" PublicationDate="2025-08-10T12:00:00Z">
+            <RequiredModel ModelUri="http://opcfoundation.org/UA/" Version="1.05.04" PublicationDate="2023-12-15T00:00:00Z" />
+        </Model>
+        <Model ModelUri="http://mycompany.com/another-nodeset/" Version="1.0.0" PublicationDate="2025-08-10T12:00:00Z">
+            <RequiredModel ModelUri="http://opcfoundation.org/UA/" Version="1.05.04" PublicationDate="2023-12-15T00:00:00Z" />
+            <RequiredModel ModelUri="http://mycompany.com/my-nodeset/" Version="1.0.0" PublicationDate="2025-08-10T12:00:00Z" />
+        </Model>
+    </Models>
+
+    <!-- 2. Server URI -->
+    <!-- <ServerUri>
+        <Uri>opc.tcp://localhost:4840/test-server</Uri>
+    </ServerUri> -->
+
+    <!-- 3. Extension -->
+    <Extensions>
+        <Extension>
+            <MyCustomExtensionData>
+                <Info>This is some custom data for the nodeset.</Info>
+            </MyCustomExtensionData>
+        </Extension>
+    </Extensions>
+
+    <!-- 4. Node Definitions -->
+
+    <!-- UAObjectTypes -->
+    <UAObjectType NodeId="ns=1;i=1001" BrowseName="1:MyDeviceType">
+        <DisplayName>MyDeviceType</DisplayName>
+        <Description>A generic type for my custom devices.</Description>
+        <References>
+            <Reference ReferenceType="HasSubtype" IsForward="false">i=58</Reference> <!-- Parent is BaseObjectType -->
+        </References>
+    </UAObjectType>
+
+    <UAObjectType NodeId="ns=2;i=1001" BrowseName="2:MyAdvancedDeviceType">
+        <DisplayName>MyAdvancedDeviceType</DisplayName>
+        <Description>An advanced type for my custom devices, from another namespace.</Description>
+        <References>
+            <Reference ReferenceType="HasSubtype" IsForward="false">ns=1;i=1001</Reference> <!-- Parent is MyDeviceType -->
+        </References>
+    </UAObjectType>
+
+    <!-- UADataTypes -->
+    <UADataType NodeId="ns=1;i=2001" BrowseName="1:TemperatureReading">
+        <DisplayName>TemperatureReading</DisplayName>
+        <Description>A structure for temperature readings.</Description>
+        <References>
+            <Reference ReferenceType="HasSubtype" IsForward="false">i=22</Reference> <!-- Structure -->
+            <Reference ReferenceType="HasEncoding">ns=1;i=3001</Reference> <!-- Default Binary -->
+            <Reference ReferenceType="HasEncoding">ns=1;i=3002</Reference> <!-- Default XML -->
+            <Reference ReferenceType="Organizes">ns=1;i=3101</Reference> <!-- Folder Encodings -->
+        </References>
+        <Definition Name="1:TemperatureReading">
+            <Field Name="Temperature" DataType="i=10" /> <!-- Double -->
+            <Field Name="Timestamp" DataType="i=13" /> <!-- DateTime -->
+        </Definition>
+    </UADataType>
+
+    <UADataType NodeId="ns=1;i=2002" BrowseName="1:PressureReading">
+        <DisplayName>PressureReading</DisplayName>
+        <Description>A structure for pressure readings.</Description>
+        <References>
+            <Reference ReferenceType="HasSubtype" IsForward="false">i=22</Reference> <!-- Parent is Structure -->
+            <Reference ReferenceType="HasEncoding" IsForward="true">ns=1;i=3003</Reference>
+            <Reference ReferenceType="HasEncoding" IsForward="true">ns=1;i=3004</Reference>
+            <Reference ReferenceType="Organizes">ns=1;i=3102</Reference> <!-- Folder Encodings -->
+        </References>
+        <Definition Name="1:PressureReading">
+            <Field Name="Pressure" DataType="i=10" /> <!-- Double -->
+            <Field Name="Unit" DataType="i=12" /> <!-- String -->
+        </Definition>
+    </UADataType>
+
+    <!-- UAObjects -->
+    <UAObject NodeId="ns=1;i=5001" BrowseName="1:Device1">
+        <DisplayName>Device1</DisplayName>
+        <Description>An instance of MyDeviceType.</Description>
+        <References>
+            <Reference ReferenceType="HasTypeDefinition">ns=1;i=1001</Reference>
+            <Reference ReferenceType="Organizes" IsForward="false">i=85</Reference> <!-- Organized by Objects folder -->
+        </References>
+    </UAObject>
+
+    <UAObject NodeId="ns=2;i=5001" BrowseName="2:Device2">
+        <DisplayName>Device2</DisplayName>
+        <Description>An instance of MyAdvancedDeviceType.</Description>
+        <References>
+            <Reference ReferenceType="HasTypeDefinition">ns=2;i=1001</Reference>
+            <Reference ReferenceType="Organizes" IsForward="false">i=85</Reference> <!-- Organized by Objects folder -->
+        </References>
+    </UAObject>
+
+    <UAObject NodeId="ns=1;i=5002" BrowseName="1:Device3">
+        <DisplayName>Device3</DisplayName>
+        <Description>Another instance of MyDeviceType.</Description>
+        <References>
+            <Reference ReferenceType="HasTypeDefinition">ns=1;i=1001</Reference>
+            <Reference ReferenceType="Organizes" IsForward="false">i=85</Reference> <!-- Organized by Objects folder -->
+        </References>
+    </UAObject>
+
+    <!-- UAVariables with Values -->
+    <UAVariable NodeId="ns=1;i=6001" BrowseName="1:Device1_Temperature" ParentNodeId="ns=1;i=5001" DataType="ns=1;i=2001">
+        <DisplayName>Device1_Temperature</DisplayName>
+        <Description>The temperature reading for Device1.</Description>
+        <References>
+            <Reference ReferenceType="HasComponent" IsForward="false">ns=1;i=5001</Reference>
+            <Reference ReferenceType="HasTypeDefinition">i=63</Reference> <!-- BaseVariableType -->
+        </References>
+        <Value>
+            <ExtensionObject>
+                <TypeId>
+                    <Identifier>ns=1;i=2001</Identifier>
+                </TypeId>
+                <Body>
+                    <TemperatureReading>
+                        <Temperature>25.5</Temperature>
+                        <Timestamp>2025-08-10T12:00:00Z</Timestamp>
+                    </TemperatureReading>
+                </Body>
+            </ExtensionObject>
+        </Value>
+    </UAVariable>
+    <!-- Encoding Objects for UADataTypes -->
+
+    <UAObject NodeId="ns=1;i=3101" BrowseName="1:TemperatureReading_Encodings">
+        <DisplayName>Encodings</DisplayName>
+        <References>
+            <Reference ReferenceType="HasTypeDefinition">i=76</Reference> <!-- DataTypeEncodingType -->                
+            <Reference ReferenceType="Organizes">ns=1;i=3001</Reference>
+            <Reference ReferenceType="Organizes">ns=1;i=3002</Reference>
+        </References>
+    </UAObject>
+
+    <UAObject NodeId="ns=1;i=3102" BrowseName="1:PressureReading_Encodings">
+        <DisplayName>Encodings</DisplayName>
+        <References>
+            <Reference ReferenceType="HasTypeDefinition">i=76</Reference> <!-- DataTypeEncodingType -->        
+            <Reference ReferenceType="Organizes">ns=1;i=3001</Reference>
+            <Reference ReferenceType="Organizes">ns=1;i=3002</Reference>
+        </References>
+    </UAObject>
+
+
+    <UAVariable NodeId="ns=1;i=3001" BrowseName="Default Binary"
+            DataType="i=15" TypeDefinition="i=77" ValueRank="-1">
+        <DisplayName>Default Binary</DisplayName>
+    </UAVariable>
+
+    <UAVariable NodeId="ns=1;i=3002" BrowseName="Default XML"
+                DataType="i=15" TypeDefinition="i=77" ValueRank="-1">
+        <DisplayName>Default XML</DisplayName>
+    </UAVariable>    
+
+
+    <UAVariable NodeId="ns=2;i=6001" BrowseName="2:Device2_Temperature" ParentNodeId="ns=2;i=5001" DataType="ns=1;i=2001">
+        <DisplayName>Device2_Temperature</DisplayName>
+        <Description>The temperature reading for Device2.</Description>
+        <References>
+            <Reference ReferenceType="HasComponent" IsForward="false">ns=2;i=5001</Reference>
+            <Reference ReferenceType="HasTypeDefinition">i=63</Reference> <!-- BaseVariableType -->
+        </References>
+        <Value>
+            <ExtensionObject>
+                <TypeId>
+                    <Identifier>ns=1;i=2001</Identifier>
+                </TypeId>
+                <Body>
+                    <TemperatureReading>
+                        <Temperature>30.1</Temperature>
+                        <Timestamp>2025-08-10T12:01:00Z</Timestamp>
+                    </TemperatureReading>
+                </Body>
+            </ExtensionObject>
+        </Value>
+    </UAVariable>
+
+    <UAVariable NodeId="ns=1;i=6002" BrowseName="1:Device3_Pressure" ParentNodeId="ns=1;i=5002" DataType="ns=1;i=2002">
+        <DisplayName>Device3_Pressure</DisplayName>
+        <Description>The pressure reading for Device3.</Description>
+        <References>
+            <Reference ReferenceType="HasComponent" IsForward="false">ns=1;i=5002</Reference>
+            <Reference ReferenceType="HasTypeDefinition">i=63</Reference> <!-- BaseVariableType -->
+        </References>
+        <Value>
+            <ExtensionObject>
+                <TypeId>
+                    <Identifier>ns=1;i=2002</Identifier>
+                </TypeId>
+                <Body>
+                    <PressureReading>
+                        <Pressure>1013.25</Pressure>
+                        <Unit>hPa</Unit>
+                    </PressureReading>
+                </Body>
+            </ExtensionObject>
+        </Value>
+    </UAVariable>
+
+</UANodeSet>

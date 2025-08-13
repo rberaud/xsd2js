@@ -15,7 +15,8 @@
   "type": "module",
   "main": "./src/main.js",
   "scripts": {
-    "test": "node ./src/main.js -i ./examples/UANodeSet.xsd -o ./examples/generated -multiple-files --XSD-type --XML-type --transparent-attributes"
+    "test": "vitest",
+    "demo": "node ./src/main.js -i ./examples/UANodeSet.xsd -o ./examples/generated -multiple-files --XSD-type --XML-type --transparent-attributes"
   },
   "repository": {
     "type": "git",
@@ -26,5 +27,14 @@
     "fs": "^0.0.1-security",
     "xml2js": "^0.6.2",
     "yargs": "^18.0.0"
+  },
+  "devDependencies": {
+    "@eslint/css": "^0.10.0",
+    "@eslint/js": "^9.33.0",
+    "@eslint/json": "^0.13.1",
+    "@eslint/markdown": "^7.1.0",
+    "eslint": "^9.33.0",
+    "globals": "^16.3.0",
+    "vitest": "^3.2.4"
   }
 }

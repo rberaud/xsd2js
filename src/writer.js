@@ -17,8 +17,8 @@
 
 import fs from "fs";
 import path from "path";
-import {fileURLToPath} from "url";
-import {topologicalSort} from "./utils.js";
+import { fileURLToPath } from "url";
+import { topologicalSort } from "./utils.js";
 
 /**
  * Writes all generated code to a single output file.
@@ -34,7 +34,7 @@ function writeSingleFile(
   baseJsPath
 ) {
   const outputDir = path.dirname(outputFile);
-  fs.mkdirSync(outputDir, {recursive: true});
+  fs.mkdirSync(outputDir, { recursive: true });
 
   const baseCode = fs.readFileSync(baseJsPath, "utf-8").replace(/export /g, "");
   const sortedClasses = topologicalSort(generatedClasses);
@@ -68,7 +68,7 @@ function writeMultipleFiles(
   generatedSimpleTypes,
   baseJsPath
 ) {
-  fs.mkdirSync(outputDir, {recursive: true});
+  fs.mkdirSync(outputDir, { recursive: true });
   fs.copyFileSync(baseJsPath, path.join(outputDir, "Base.js"));
 
   const allTypeNames = new Set([
@@ -81,10 +81,16 @@ function writeMultipleFiles(
     const simpleTypeCode = generatedSimpleTypes
       .map((st) => st.code)
       .join("\n\n");
-    fs.writeFileSync(path.join(outputDir, "simpleTypes.js"), simpleTypeCode);
-  }
 
-  generatedClasses.forEach(({className, code, dependencies}) => {
+    // Add the import statement at the beginning
+    const finalSimpleTypeCode = `import { Base } from './Base.js';\n\n${simpleTypeCode}`;
+
+    fs.writeFileSync(
+      path.join(outputDir, "simpleTypes.js"),
+      finalSimpleTypeCode
+    );
+  }
+  generatedClasses.forEach(({ className, code, dependencies }) => {
     const simpleTypeDeps = new Set();
     const classDeps = new Set();
 
@@ -133,15 +139,40 @@ function writeMultipleFiles(
 }
 
 /**
+ * Writes the Base.js file to the output directory with the correct configuration.
+ * @param {string} outputDir - The output directory.
+ * @param {string} baseJsPath - The path to the Base.js template file.
+ * @param {object} config - The configuration object.
+ */
+function writeBaseFile(outputDir, baseJsPath, config) {
+  let baseJsContent = fs.readFileSync(baseJsPath, "utf-8");
+
+  // Replace the placeholder with the actual boolean value from the config.
+  // If config['only-string'] is true, __ONLY_STRING__ becomes 'true',
+  // and parseAttributeValue becomes '!true' (i.e., false).
+  baseJsContent = baseJsContent.replace(
+    /__ONLY_STRING__/g,
+    config["only-string"]
+  );
+
+  fs.writeFileSync(path.join(outputDir, "Base.js"), baseJsContent);
+}
+
+/**
  * Main function to orchestrate file writing based on config.
  * @param {{generatedClasses: any[], generatedSimpleTypes: any[], config: object}} params
  */
-export function writeOutput({generatedClasses, generatedSimpleTypes, config}) {
+export function writeOutput({
+  generatedClasses,
+  generatedSimpleTypes,
+  config,
+}) {
   const __filename = fileURLToPath(import.meta.url);
   const __dirname = path.dirname(__filename);
+  // Use template/base.js as the source for Base.js
   const baseJsPath = config.base
     ? path.resolve(config.base)
-    : path.join(__dirname, "Base.js");
+    : path.resolve(__dirname, "../template/base.js");
 
   if (config.multipleFiles) {
     writeMultipleFiles(
@@ -158,4 +189,7 @@ export function writeOutput({generatedClasses, generatedSimpleTypes, config}) {
       baseJsPath
     );
   }
+
+  // Write the Base.js file with the correct configuration
+  writeBaseFile(config.output, baseJsPath, config);
 }

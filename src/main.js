@@ -19,17 +19,20 @@
 import fs from "fs";
 import path from "path";
 import yargs from "yargs";
-import {hideBin} from "yargs/helpers";
-import {XMLParser} from "fast-xml-parser";
-import {parseXsd} from "./parser.js";
-import {buildClassCode, buildSimpleTypeCode} from "./generator.js";
-import {writeOutput} from "./writer.js";
+import { hideBin } from "yargs/helpers";
+import { XMLParser } from "fast-xml-parser";
+import { parseXsd } from "./parser.js";
+import { buildClassCode, buildSimpleTypeCode } from "./generator.js";
+import { writeOutput } from "./writer.js";
 
 /**
  * Configures and parses command-line arguments using yargs.
  * @returns {object} The parsed arguments as a configuration object.
  */
 function parseArguments() {
+  // Ensure 'process' is defined (for environments where it's not global)
+
+  // eslint-disable-next-line no-undef
   return yargs(hideBin(process.argv))
     .usage("Usage: xsd2js -i <input.xsd> -o <output_path> [-m]")
     .option("input", {
@@ -88,6 +91,7 @@ function parseArguments() {
         'Tag in template for the meta method (e.g., "tag-meta"). Everything will be replaced with the meta properties code, between the <tag-meta> and </tag-meta> tags.',
       type: "string",
     })
+
     .option("template-tag-header", {
       describe:
         'Tag in template for the header (e.g., "tag-header"). Everything will be replaced with the import code, between the <tag-header> and </tag-header> tags.',
@@ -98,6 +102,12 @@ function parseArguments() {
         "Property name to use for XML text nodes (#text). Default is 'value'.",
       type: "string",
       default: "value",
+    })
+    .option("only-string", {
+      describe:
+        "Disable type conversion for all values from the XML file. All values will be strings.",
+      type: "boolean",
+      default: true,
     })
     .check((argv) => {
       if (!fs.existsSync(argv.input)) {
@@ -124,7 +134,7 @@ function main() {
       attributeNamePrefix: "@_",
     }).parse(xsdContent);
 
-    const {complexTypes, simpleTypes} = parseXsd(schemaObj);
+    const { complexTypes, simpleTypes } = parseXsd(schemaObj);
 
     // 3. Generate code from the parsed schema
     const generatedClasses = complexTypes.map((typeDef) =>
@@ -133,13 +143,14 @@ function main() {
     const generatedSimpleTypes = simpleTypes.map(buildSimpleTypeCode);
 
     // 4. Write the generated code to files
-    writeOutput({generatedClasses, generatedSimpleTypes, config});
+    writeOutput({ generatedClasses, generatedSimpleTypes, config });
 
     console.log(
       `✅ Success! Output generated at: ${path.resolve(config.output)}`
     );
   } catch (error) {
     console.error(`❌ Error: ${error.message}`);
+    // eslint-disable-next-line no-undef
     process.exit(1);
   }
 }

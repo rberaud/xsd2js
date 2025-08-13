@@ -8,8 +8,16 @@
       "type": "node",
       "request": "launch",
       "name": "Launch Program",
-      "skipFiles": ["<node_internals>/**"],
-      "program": "./src/main.js",
+      "skipFiles": [
+        "<node_internals>/**"
+      ],
+      "program": "${workspaceRoot}/node_modules/vitest/vitest.mjs",
+      "args": [
+        "./test/unitGenerateAndRoundtrip.test.js"
+      ],
+      "smartStep": true,
+      "console": "integratedTerminal"
+      /*      "program": "./src/main.js",
       "args": [
         "-i",
         "./examples/UANodeSet.xsd",
@@ -19,7 +27,7 @@
         "--XSD-type",
         "--XML-type",
         "--transparent-attributes"
-      ]
+      ]*/
     }
   ]
 }

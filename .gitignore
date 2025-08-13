@@ -1,6 +1,7 @@
 .history
 node_modules
 examples/generated/
+test/generated-unit/
 build
 npm-debug.log
 .env

@@ -10,7 +10,8 @@
 			},
 			"problemMatcher": [],
 			"label": "npm: test",
-			"detail": "node ./src/main.js -i ./examples/UANodeSet.xsd -o ./examples/generated -m"
+			"detail": "Run tests using Vitest"
+			//"detail": "node ./src/main.js -i ./examples/UANodeSet.xsd -o ./examples/generated -m"
 		}
 	]
 }
