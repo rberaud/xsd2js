@@ -116,9 +116,7 @@ export function extractProperties(typeNode, config, groupMap, attrGroupMap) {
       properties.push({
         name: textAttrName,
         xmlName: "#text",
-        type: extension["@_base"]
-          ? extension["@_base"].replace(/^.*:/, "")
-          : "string",
+        type: extension["@_base"] || "xs:string",
         isList: false,
         xsdType: extension["@_base"],
         isAttribute: false,

@@ -1,50 +1,76 @@
-import { XMLParser } from "fast-xml-parser";
+import { parseStringPromise } from "xml2js";
 
 /**
  * Base class providing core XML serialization (marshalling) and deserialization (unmarshalling).
  * Generated classes will extend this.
  */
+// Local normalizer so generated Base.js is self-contained wherever copied.
+function normalizeXml2js(node) {
+  if (node === null || node === undefined) return node;
+  if (typeof node !== "object") return node;
+  const result = {};
+  if (node.$) {
+    for (const [k, v] of Object.entries(node.$)) result[`@_${k}`] = v;
+  }
+  if (node._ !== undefined) result["#text"] = node._;
+  if (Array.isArray(node.$$)) {
+    for (const child of node.$$) {
+      const name = child["#name"];
+      const copy = Object.assign({}, child);
+      delete copy["#name"];
+      const n = normalizeXml2js(copy);
+      if (name in result) {
+        if (!Array.isArray(result[name])) result[name] = [result[name]];
+        result[name].push(n);
+      } else result[name] = n;
+    }
+  }
+  const other = Object.keys(node).filter(
+    (k) => k != "$" && k != "_" && k != "$$"
+  );
+  for (const k of other) {
+    const v = node[k];
+    if (Array.isArray(v)) result[k] = v.map(normalizeXml2js);
+    else if (typeof v === "object") result[k] = normalizeXml2js(v);
+    else result[k] = v;
+  }
+  return result;
+}
+
+// Convert a value to a safe string for XML serialization.
+// Preserves undefined/null as-is so callers can skip them when needed.
+function stringifyValue(v) {
+  if (v === undefined || v === null) return v;
+  if (typeof v === "string") return v;
+  if (typeof v === "number" || typeof v === "boolean") return String(v);
+  // If it's a Base-derived instance with a `value` property prefer that.
+  if (v && typeof v === "object" && "value" in v) return stringifyValue(v.value);
+  if (v && typeof v.toString === "function") return v.toString();
+  return String(v);
+}
+
 export class Base {
   /**
    * Unmarshalls an XML string into an instance of the calling class.
    * This is the entry point for deserialization.
    * @param {string} xmlString - The XML content to parse.
-   * @returns {Base} An instance of the class (e.g., User) populated with data.
+   * @returns {Promise<Base>} An instance of the class populated with data.
    */
-  static fromXML(xmlString) {
-    const parser = new XMLParser({
-      ignoreAttributes: false,
-      attributeNamePrefix: "@_", // Keep consistent with our property naming for attributes
-      // eslint-disable-next-line no-undef
-      parseAttributeValue: !__ONLY_STRING__, // This will be replaced by the generator
-      // eslint-disable-next-line no-undef
-      parseTagValue: !__ONLY_STRING__, // This will be replaced by the generator
-      // eslint-disable-next-line no-unused-vars
-      isArray: (name, jpath, isLeafNode, isAttribute) => {
-        // This is a hint to the parser to always treat certain tags as arrays,
-        // which is essential for tags with maxOccurs="unbounded".
-        // We'll rely on the constructor logic for now, but this is a robust alternative.
-        return false;
-      },
+  static async fromXML(xmlString) {
+    const raw = await parseStringPromise(xmlString, {
+      explicitChildren: true,
+      preserveChildrenOrder: true,
+      explicitArray: false,
+      mergeAttrs: false,
+      charsAsChildren: true,
+      explicitRoot: true,
     });
-
-    const jsonObj = parser.parse(xmlString);
-
-    // Filter out processing instructions (e.g., <?xml ... ?>) and comments (e.g., <!-- ... -->)
-    const rootElementName = Object.keys(jsonObj).find(
+    const json = normalizeXml2js(raw);
+    const root = Object.keys(json).find(
       (k) => !k.startsWith("?") && !k.startsWith("#")
     );
-
-    if (!rootElementName) {
-      throw new Error("No valid root element found in the XML.");
-    }
-
-    const rootData = jsonObj[rootElementName];
-
-    // 'this' refers to the static class calling the method (e.g., User).
-    // The constructor of the specific class (e.g., User) is responsible for
-    // recursively creating instances of its properties (e.g., Address).
-    return new this(rootData);
+    if (!root) throw new Error("No valid root element found in the XML.");
+    return new this(json[root]);
   }
 
   /**
@@ -92,23 +118,15 @@ export class Base {
             xmlName.startsWith("@_") ? xmlName.substring(2) : xmlName
           }=`;
 
-          if (value instanceof Base) {
-            output = output + `"${value.value}"`;
+          if (value instanceof Base && value.value !== undefined) {
+            output = output + `"${stringifyValue(value.value)}"`;
           } else {
-            output = output + `"${value}"`;
+            output = output + `"${stringifyValue(value)}"`;
           }
           attributes.push(output);
         } else if (xmlName === "#text") {
           // Handle text content
-          if (typeof value === "object" && value !== null && "value" in value) {
-            textContent = value.value;
-          } else {
-            if (value instanceof Base) {
-              children.push(generateXML(value, xmlName, level + 1));
-            } else {
-              textContent = value;
-            }
-          }
+          textContent = stringifyValue(value);
         } else if (Array.isArray(value)) {
           // Handle arrays (recursively process each item)
           value.forEach((item) => {
@@ -118,10 +136,11 @@ export class Base {
           // Handle nested objects (recursively process)
           children.push(generateXML(value, xmlName, level + 1));
         } else {
-          // Handle simple properties
-          children.push(
-            `${indent}    <${xmlName}>${escapeXML(value)}</${xmlName}>`
-          );
+            // Handle simple properties
+            const s = stringifyValue(value);
+            children.push(
+              `${indent}    <${xmlName}>${escapeXML(s)}</${xmlName}>`
+            );
         }
       }
 
@@ -134,7 +153,7 @@ export class Base {
       const closingTag = `${indent}</${nodeName}>`;
 
       // Combine everything
-      if (children.length > 0) {
+  if (children.length > 0) {
         return `${openingTag}\n${
           textContent ? `${indent}    ${escapeXML(textContent)}\n` : ""
         }${children.join("\n")}\n${closingTag}`;
@@ -183,7 +202,7 @@ export class Base {
         continue;
 
       const value = this[key];
-      if (value === undefined || value === null) continue; // Skip undefined or null values
+  if (value === undefined || value === null) continue; // Skip undefined or null values
 
       // Use metadata to determine if this is an attribute, content, or element
       const metaInfo = meta[key] || {};
@@ -192,21 +211,21 @@ export class Base {
       if (metaInfo.isAttribute) {
         // Handle attributes (stored in `$`)
         attributes[xmlName.startsWith("@_") ? xmlName.substring(2) : xmlName] =
-          value;
+          stringifyValue(value);
       } else if (xmlName === "#text") {
         // Handle text content (stored in `#`)
-        obj["#"] = value;
+        obj["#"] = stringifyValue(value);
       } else if (value instanceof Base) {
         // Handle nested objects (recursively call `toObject`)
         obj[xmlName] = value.toObject();
       } else if (Array.isArray(value)) {
         // Handle arrays (map each item to its object representation)
         obj[xmlName] = value.map((item) =>
-          item instanceof Base ? item.toObject() : item
+          item instanceof Base ? item.toObject() : stringifyValue(item)
         );
       } else {
         // Handle simple properties
-        obj[xmlName] = value;
+        obj[xmlName] = stringifyValue(value);
       }
     }
 

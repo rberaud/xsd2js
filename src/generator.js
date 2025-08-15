@@ -38,20 +38,37 @@ export { buildSimpleTypeCode } from "./simpleTypeGenerator.js";
 function buildConstructor(properties, dependencies) {
   return properties
     .map((prop) => {
-      if (XSD_TYPE_TO_JS[prop.type]) {
+      const isPrimitive = !!XSD_TYPE_TO_JS[prop.type];
+      // Handle text content nodes like <xs:simpleContent base="xs:string"> mapped to xmlName '#text'
+      if (prop.xmlName === "#text") {
+        // prefer normalized '#text' key, fall back to property name for compatibility
+        return `this.${prop.name} = data["#text"] !== undefined ? data["#text"] : data.${prop.name};`;
+      }
+
+      if (isPrimitive) {
         if (prop.isAttribute) {
           return `this.${prop.name} = data["${prop.xmlName}"];`;
         }
         return `this.${prop.name} = data.${prop.name};`;
       }
       if (prop.type) {
-        const dependencyName = prop.type.split(":").pop();
-        dependencies.add(dependencyName);
+        const dependencyName = prop.type.startsWith("xs:")
+          ? XSD_TYPE_TO_JS[prop.type]
+          : prop.type.split(":").pop();
+        if (!XSD_TYPE_TO_JS[prop.type]) {
+          dependencies.add(dependencyName);
+        }
         if (prop.isList) {
+          if (XSD_TYPE_TO_JS[prop.type]) {
+            return `this.${prop.name} = data.${prop.name} ? [].concat(data.${prop.name}) : [];`;
+          }
           return `this.${prop.name} = data.${prop.name} ? [].concat(data.${prop.name}).map(item => new ${dependencyName}(item)) : [];`;
         }
         // Handle both direct data and data under the xmlName for flexibility
         const dataAccess = `data["${prop.xmlName}"] || data["${prop.name}"]`;
+        if (XSD_TYPE_TO_JS[prop.type]) {
+          return `this.${prop.name} = ${dataAccess};`;
+        }
         return `this.${prop.name} = ${dataAccess} ? new ${dependencyName}(${dataAccess}) : undefined;`;
       }
       // Handle properties with no type (e.g. from <xs:any>)

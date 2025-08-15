@@ -6,7 +6,8 @@ import path from "path";
 import { parseXsd } from "../src/parser.js";
 import { buildClassCode, buildSimpleTypeCode } from "../src/generator.js";
 import { writeOutput } from "../src/writer.js";
-import { XMLParser } from "fast-xml-parser";
+import { parseStringPromise } from "xml2js";
+import { normalizeXml2js } from "../src/xmlNormalizer.js";
 import { vi, describe, it, beforeAll, expect } from "vitest";
 
 const xsdFile =
@@ -20,7 +21,7 @@ let generatedClasses;
 let generatedSimpleTypes;
 let config;
 
-beforeAll(() => {
+beforeAll(async () => {
   // Prepare config for code generation
   config = {
     input: xsdFile,
@@ -35,10 +36,15 @@ beforeAll(() => {
 
   // Read and parse XSD
   const xsdContent = fs.readFileSync(xsdFile, "utf-8");
-  const schemaObj = new XMLParser({
-    ignoreAttributes: false,
-    attributeNamePrefix: "@_",
-  }).parse(xsdContent);
+  const raw = await parseStringPromise(xsdContent, {
+    explicitChildren: true,
+    preserveChildrenOrder: true,
+    explicitArray: false,
+    mergeAttrs: false,
+    charsAsChildren: true,
+    explicitRoot: true,
+  });
+  const schemaObj = normalizeXml2js(raw);
 
   const { complexTypes, simpleTypes } = parseXsd(schemaObj);
   generatedClasses = complexTypes.map((typeDef) =>
@@ -57,7 +63,7 @@ describe("XSD2JS Unitary Roundtrip Test", () => {
     // Read the XML file
     const xmlString = fs.readFileSync(xmlFile, "utf-8");
     // Parse XML to JS object
-    const nodeSet = UANodeSet.fromXML(xmlString);
+    const nodeSet = await UANodeSet.fromXML(xmlString);
     expect(nodeSet).toBeDefined();
     // Serialize back to XML
     console.log(nodeSet.toXML("UANodeSet"));

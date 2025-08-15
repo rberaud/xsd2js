@@ -20,7 +20,8 @@ import fs from "fs";
 import path from "path";
 import yargs from "yargs";
 import { hideBin } from "yargs/helpers";
-import { XMLParser } from "fast-xml-parser";
+import { parseStringPromise } from "xml2js";
+import { normalizeXml2js } from "./xmlNormalizer.js";
 import { parseXsd } from "./parser.js";
 import { buildClassCode, buildSimpleTypeCode } from "./generator.js";
 import { writeOutput } from "./writer.js";
@@ -122,17 +123,22 @@ function parseArguments() {
 /**
  * Main execution function.
  */
-function main() {
+async function main() {
   try {
     // 1. Get configuration from command line
     const config = parseArguments();
 
     // 2. Read and parse the XSD schema
     const xsdContent = fs.readFileSync(config.input, "utf-8");
-    const schemaObj = new XMLParser({
-      ignoreAttributes: false,
-      attributeNamePrefix: "@_",
-    }).parse(xsdContent);
+    const raw = await parseStringPromise(xsdContent, {
+      explicitChildren: true,
+      preserveChildrenOrder: true,
+      explicitArray: false,
+      mergeAttrs: false,
+      charsAsChildren: true,
+      explicitRoot: true,
+    });
+    const schemaObj = normalizeXml2js(raw);
 
     const { complexTypes, simpleTypes } = parseXsd(schemaObj);
 
@@ -156,4 +162,4 @@ function main() {
 }
 
 // --- Let's Go! ---
-main();
+await main();
