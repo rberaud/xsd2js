@@ -1,212 +1,151 @@
 <UANodeSet LastModified="2025-08-13T00:39:28.546Z">
-    <UAObject>
+    <UAObject NodeId="ns=1;i=5000" BrowseName="1:http://www.companyA.com/OPC-UA/Packaging.xsd" SymbolicName="http___www_companyA_com_OPC_UA_Packaging_xsd" ParentNodeId="i=11715">
         <DisplayName>http://www.companyA.com/OPC-UA/Packaging.xsd        </DisplayName>
         <References>
             <Reference ReferenceType="HasComponent" IsForward="false">i=11715            </Reference>
             <Reference ReferenceType="HasTypeDefinition">i=11616            </Reference>
         </References>
-        <NodeId>ns=1;i=5000</NodeId>
-        <BrowseName>1:http://www.companyA.com/OPC-UA/Packaging.xsd</BrowseName>
-        <SymbolicName>http___www_companyA_com_OPC_UA_Packaging_xsd</SymbolicName>
-        <ParentNodeId>i=11715</ParentNodeId>
     </UAObject>
-    <UAObject>
+    <UAObject NodeId="ns=1;i=5001" BrowseName="Default Binary" SymbolicName="DefaultBinary">
         <DisplayName>Default Binary        </DisplayName>
         <References>
             <Reference ReferenceType="HasTypeDefinition">i=76            </Reference>
         </References>
-        <NodeId>ns=1;i=5001</NodeId>
-        <BrowseName>Default Binary</BrowseName>
-        <SymbolicName>DefaultBinary</SymbolicName>
     </UAObject>
-    <UAObject>
+    <UAObject NodeId="ns=1;i=5002" BrowseName="Default XML" SymbolicName="DefaultXML">
         <DisplayName>Default XML        </DisplayName>
         <References>
             <Reference ReferenceType="HasTypeDefinition">i=76            </Reference>
         </References>
-        <NodeId>ns=1;i=5002</NodeId>
-        <BrowseName>Default XML</BrowseName>
-        <SymbolicName>DefaultXML</SymbolicName>
     </UAObject>
-    <UAObject>
+    <UAObject NodeId="ns=1;i=5003" BrowseName="1:PackagingScannerA" ParentNodeId="ns=1;i=5004">
         <DisplayName>PackagingScannerA        </DisplayName>
         <References>
             <Reference ReferenceType="Organizes" IsForward="false">ns=1;i=5004            </Reference>
             <Reference ReferenceType="HasTypeDefinition">ns=1;i=1000            </Reference>
         </References>
-        <NodeId>ns=1;i=5003</NodeId>
-        <BrowseName>1:PackagingScannerA</BrowseName>
-        <ParentNodeId>ns=1;i=5004</ParentNodeId>
     </UAObject>
-    <UAObject>
+    <UAObject NodeId="ns=1;i=5004" BrowseName="1:Equipments" ParentNodeId="i=2253">
         <DisplayName>Equipments        </DisplayName>
         <References>
             <Reference ReferenceType="Organizes" IsForward="false">i=2253            </Reference>
             <Reference ReferenceType="HasTypeDefinition">i=61            </Reference>
         </References>
-        <NodeId>ns=1;i=5004</NodeId>
-        <BrowseName>1:Equipments</BrowseName>
-        <ParentNodeId>i=2253</ParentNodeId>
     </UAObject>
-    <UAObject>
+    <UAObject NodeId="ns=1;i=5005" BrowseName="1:PackagingScannerB" ParentNodeId="ns=1;i=5004">
         <DisplayName>PackagingScannerB        </DisplayName>
         <References>
             <Reference ReferenceType="Organizes" IsForward="false">ns=1;i=5004            </Reference>
             <Reference ReferenceType="HasTypeDefinition">ns=1;i=1000            </Reference>
         </References>
-        <NodeId>ns=1;i=5005</NodeId>
-        <BrowseName>1:PackagingScannerB</BrowseName>
-        <ParentNodeId>ns=1;i=5004</ParentNodeId>
     </UAObject>
-    <UAVariable DataType="Boolean">
+    <UAVariable NodeId="ns=1;i=6000" BrowseName="IsNamespaceSubset" ParentNodeId="ns=1;i=5000" DataType="Boolean">
         <DisplayName>IsNamespaceSubset        </DisplayName>
         <References>
             <Reference ReferenceType="HasProperty" IsForward="false">ns=1;i=5000            </Reference>
             <Reference ReferenceType="HasTypeDefinition">i=68            </Reference>
         </References>
-        <NodeId>ns=1;i=6000</NodeId>
-        <BrowseName>IsNamespaceSubset</BrowseName>
-        <ParentNodeId>ns=1;i=5000</ParentNodeId>
     </UAVariable>
-    <UAVariable DataType="DateTime">
+    <UAVariable NodeId="ns=1;i=6001" BrowseName="NamespacePublicationDate" ParentNodeId="ns=1;i=5000" DataType="DateTime">
         <DisplayName>NamespacePublicationDate        </DisplayName>
         <References>
             <Reference ReferenceType="HasProperty" IsForward="false">ns=1;i=5000            </Reference>
             <Reference ReferenceType="HasTypeDefinition">i=68            </Reference>
         </References>
-        <NodeId>ns=1;i=6001</NodeId>
-        <BrowseName>NamespacePublicationDate</BrowseName>
-        <ParentNodeId>ns=1;i=5000</ParentNodeId>
         <Value>[object Object]</Value>
     </UAVariable>
-    <UAVariable DataType="String">
+    <UAVariable NodeId="ns=1;i=6002" BrowseName="NamespaceUri" ParentNodeId="ns=1;i=5000" DataType="String">
         <DisplayName>NamespaceUri        </DisplayName>
         <References>
             <Reference ReferenceType="HasProperty" IsForward="false">ns=1;i=5000            </Reference>
             <Reference ReferenceType="HasTypeDefinition">i=68            </Reference>
         </References>
-        <NodeId>ns=1;i=6002</NodeId>
-        <BrowseName>NamespaceUri</BrowseName>
-        <ParentNodeId>ns=1;i=5000</ParentNodeId>
         <Value>[object Object]</Value>
     </UAVariable>
-    <UAVariable DataType="String">
+    <UAVariable NodeId="ns=1;i=6003" BrowseName="NamespaceVersion" ParentNodeId="ns=1;i=5000" DataType="String">
         <DisplayName>NamespaceVersion        </DisplayName>
         <References>
             <Reference ReferenceType="HasProperty" IsForward="false">ns=1;i=5000            </Reference>
             <Reference ReferenceType="HasTypeDefinition">i=68            </Reference>
         </References>
-        <NodeId>ns=1;i=6003</NodeId>
-        <BrowseName>NamespaceVersion</BrowseName>
-        <ParentNodeId>ns=1;i=5000</ParentNodeId>
         <Value>[object Object]</Value>
     </UAVariable>
-    <UAVariable DataType="i=256" ValueRank="1">
+    <UAVariable NodeId="ns=1;i=6004" BrowseName="StaticNodeIdTypes" ParentNodeId="ns=1;i=5000" DataType="i=256" ValueRank="1">
         <DisplayName>StaticNodeIdTypes        </DisplayName>
         <References>
             <Reference ReferenceType="HasProperty" IsForward="false">ns=1;i=5000            </Reference>
             <Reference ReferenceType="HasTypeDefinition">i=68            </Reference>
         </References>
-        <NodeId>ns=1;i=6004</NodeId>
-        <BrowseName>StaticNodeIdTypes</BrowseName>
-        <ParentNodeId>ns=1;i=5000</ParentNodeId>
     </UAVariable>
-    <UAVariable DataType="i=291" ValueRank="1">
+    <UAVariable NodeId="ns=1;i=6005" BrowseName="StaticNumericNodeIdRange" ParentNodeId="ns=1;i=5000" DataType="i=291" ValueRank="1">
         <DisplayName>StaticNumericNodeIdRange        </DisplayName>
         <References>
             <Reference ReferenceType="HasProperty" IsForward="false">ns=1;i=5000            </Reference>
             <Reference ReferenceType="HasTypeDefinition">i=68            </Reference>
         </References>
-        <NodeId>ns=1;i=6005</NodeId>
-        <BrowseName>StaticNumericNodeIdRange</BrowseName>
-        <ParentNodeId>ns=1;i=5000</ParentNodeId>
     </UAVariable>
-    <UAVariable DataType="String">
+    <UAVariable NodeId="ns=1;i=6006" BrowseName="StaticStringNodeIdPattern" ParentNodeId="ns=1;i=5000" DataType="String">
         <DisplayName>StaticStringNodeIdPattern        </DisplayName>
         <References>
             <Reference ReferenceType="HasProperty" IsForward="false">ns=1;i=5000            </Reference>
             <Reference ReferenceType="HasTypeDefinition">i=68            </Reference>
         </References>
-        <NodeId>ns=1;i=6006</NodeId>
-        <BrowseName>StaticStringNodeIdPattern</BrowseName>
-        <ParentNodeId>ns=1;i=5000</ParentNodeId>
     </UAVariable>
-    <UAVariable DataType="i=96" ValueRank="1">
+    <UAVariable NodeId="ns=1;i=6007" BrowseName="DefaultRolePermissions" ParentNodeId="ns=1;i=5000" DataType="i=96" ValueRank="1">
         <DisplayName>DefaultRolePermissions        </DisplayName>
         <References>
             <Reference ReferenceType="HasProperty" IsForward="false">ns=1;i=5000            </Reference>
             <Reference ReferenceType="HasTypeDefinition">i=68            </Reference>
         </References>
-        <NodeId>ns=1;i=6007</NodeId>
-        <BrowseName>DefaultRolePermissions</BrowseName>
-        <ParentNodeId>ns=1;i=5000</ParentNodeId>
     </UAVariable>
-    <UAVariable DataType="i=95">
+    <UAVariable NodeId="ns=1;i=6008" BrowseName="DefaultAccessRestrictions" ParentNodeId="ns=1;i=5000" DataType="i=95">
         <DisplayName>DefaultAccessRestrictions        </DisplayName>
         <References>
             <Reference ReferenceType="HasProperty" IsForward="false">ns=1;i=5000            </Reference>
             <Reference ReferenceType="HasTypeDefinition">i=68            </Reference>
         </References>
-        <NodeId>ns=1;i=6008</NodeId>
-        <BrowseName>DefaultAccessRestrictions</BrowseName>
-        <ParentNodeId>ns=1;i=5000</ParentNodeId>
     </UAVariable>
-    <UAVariable DataType="String" AccessLevel="3" UserAccessLevel="3">
+    <UAVariable NodeId="ns=1;i=6015" BrowseName="1:Name" ParentNodeId="ns=1;i=1000" DataType="String" AccessLevel="3" UserAccessLevel="3">
         <DisplayName>Name        </DisplayName>
         <References>
             <Reference ReferenceType="HasTypeDefinition">i=63            </Reference>
             <Reference ReferenceType="HasModellingRule">i=80            </Reference>
         </References>
-        <NodeId>ns=1;i=6015</NodeId>
-        <BrowseName>1:Name</BrowseName>
-        <ParentNodeId>ns=1;i=1000</ParentNodeId>
     </UAVariable>
-    <UAVariable DataType="ns=1;i=3000" AccessLevel="3" UserAccessLevel="3">
+    <UAVariable NodeId="ns=1;i=6016" BrowseName="1:MachineTemperature" ParentNodeId="ns=1;i=1000" DataType="ns=1;i=3000" AccessLevel="3" UserAccessLevel="3">
         <DisplayName>MachineTemperature        </DisplayName>
         <References>
             <Reference ReferenceType="HasTypeDefinition">i=63            </Reference>
             <Reference ReferenceType="HasModellingRule">i=80            </Reference>
         </References>
-        <NodeId>ns=1;i=6016</NodeId>
-        <BrowseName>1:MachineTemperature</BrowseName>
-        <ParentNodeId>ns=1;i=1000</ParentNodeId>
     </UAVariable>
-    <UAVariable DataType="i=296" ValueRank="1" ArrayDimensions="1">
+    <UAVariable NodeId="ns=1;i=6017" BrowseName="InputArguments" ParentNodeId="ns=1;i=7000" DataType="i=296" ValueRank="1" ArrayDimensions="1">
         <DisplayName>InputArguments        </DisplayName>
         <Description>the definition of the input argument of method 1:3DScanner.1:ScanTemperature        </Description>
         <References>
             <Reference ReferenceType="HasTypeDefinition">i=68            </Reference>
             <Reference ReferenceType="HasModellingRule">i=78            </Reference>
         </References>
-        <NodeId>ns=1;i=6017</NodeId>
-        <BrowseName>InputArguments</BrowseName>
-        <ParentNodeId>ns=1;i=7000</ParentNodeId>
         <Value>[object Object]</Value>
     </UAVariable>
-    <UAVariable DataType="i=296" ValueRank="1" ArrayDimensions="1">
+    <UAVariable NodeId="ns=1;i=6018" BrowseName="OutputArguments" ParentNodeId="ns=1;i=7000" DataType="i=296" ValueRank="1" ArrayDimensions="1">
         <DisplayName>OutputArguments        </DisplayName>
         <Description>the definition of the output arguments of method 1:3DScanner.1:ScanTemperature        </Description>
         <References>
             <Reference ReferenceType="HasTypeDefinition">i=68            </Reference>
             <Reference ReferenceType="HasModellingRule">i=78            </Reference>
         </References>
-        <NodeId>ns=1;i=6018</NodeId>
-        <BrowseName>OutputArguments</BrowseName>
-        <ParentNodeId>ns=1;i=7000</ParentNodeId>
         <Value>[object Object]</Value>
     </UAVariable>
-    <UAMethod>
+    <UAMethod NodeId="ns=1;i=7000" BrowseName="1:ScanTemperature" ParentNodeId="ns=1;i=1000">
         <DisplayName>ScanTemperature        </DisplayName>
         <References>
             <Reference ReferenceType="HasModellingRule">i=80            </Reference>
             <Reference ReferenceType="HasProperty">ns=1;i=6017            </Reference>
             <Reference ReferenceType="HasProperty">ns=1;i=6018            </Reference>
         </References>
-        <NodeId>ns=1;i=7000</NodeId>
-        <BrowseName>1:ScanTemperature</BrowseName>
-        <ParentNodeId>ns=1;i=1000</ParentNodeId>
     </UAMethod>
-    <UAObjectType>
+    <UAObjectType NodeId="ns=1;i=1000" BrowseName="1:3DScanner">
         <DisplayName>3DScanner        </DisplayName>
         <References>
             <Reference ReferenceType="HasSubtype" IsForward="false">i=58            </Reference>
@@ -214,27 +153,20 @@
             <Reference ReferenceType="HasComponent">ns=1;i=6016            </Reference>
             <Reference ReferenceType="HasComponent">ns=1;i=7000            </Reference>
         </References>
-        <NodeId>ns=1;i=1000</NodeId>
-        <BrowseName>1:3DScanner</BrowseName>
     </UAObjectType>
-    <UADataType>
+    <UADataType NodeId="ns=1;i=3000" BrowseName="1:Temperature">
         <DisplayName>Temperature        </DisplayName>
         <References>
             <Reference ReferenceType="HasSubtype" IsForward="false">i=10            </Reference>
         </References>
-        <NodeId>ns=1;i=3000</NodeId>
-        <BrowseName>1:Temperature</BrowseName>
     </UADataType>
-    <UADataType>
+    <UADataType NodeId="ns=1;i=3001" BrowseName="1:2DLocalization" SymbolicName="S2DLocalization">
         <DisplayName>2DLocalization        </DisplayName>
         <References>
             <Reference ReferenceType="HasSubtype" IsForward="false">i=22            </Reference>
             <Reference ReferenceType="HasEncoding">ns=1;i=5001            </Reference>
             <Reference ReferenceType="HasEncoding">ns=1;i=5002            </Reference>
         </References>
-        <NodeId>ns=1;i=3001</NodeId>
-        <BrowseName>1:2DLocalization</BrowseName>
-        <SymbolicName>S2DLocalization</SymbolicName>
         <Definition Name="1:2DLocalization">
             <Field Name="X-Coordinate" SymbolicName="X" DataType="Int32">            </Field>
             <Field Name="Y-Coordinate" SymbolicName="Y" DataType="Int32">            </Field>

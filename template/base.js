@@ -44,9 +44,23 @@ function stringifyValue(v) {
   if (typeof v === "string") return v;
   if (typeof v === "number" || typeof v === "boolean") return String(v);
   // If it's a Base-derived instance with a `value` property prefer that.
-  if (v && typeof v === "object" && "value" in v) return stringifyValue(v.value);
+  if (v && typeof v === "object" && "value" in v)
+    return stringifyValue(v.value);
   if (v && typeof v.toString === "function") return v.toString();
   return String(v);
+}
+
+// Merge XSD metadata from the class and its superclasses so attributes
+// declared on parent classes are visible for instances of subclasses.
+function getMergedXSDMeta(ctor) {
+  const metas = [];
+  let c = ctor;
+  while (c) {
+    if (typeof c.__getXSDMeta === "function") metas.unshift(c.__getXSDMeta());
+    c = Object.getPrototypeOf(c);
+    if (!c || c === Function.prototype) break;
+  }
+  return Object.assign({}, ...metas);
 }
 
 export class Base {
@@ -94,10 +108,8 @@ export class Base {
       let textContent = "";
       const children = [];
 
-      // Retrieve metadata for the class
-      const meta = node.constructor.__getXSDMeta
-        ? node.constructor.__getXSDMeta()
-        : {};
+  // Retrieve merged metadata for the class (includes superclasses)
+  const meta = getMergedXSDMeta(node.constructor) || {};
 
       for (const key in node) {
         if (
@@ -136,11 +148,11 @@ export class Base {
           // Handle nested objects (recursively process)
           children.push(generateXML(value, xmlName, level + 1));
         } else {
-            // Handle simple properties
-            const s = stringifyValue(value);
-            children.push(
-              `${indent}    <${xmlName}>${escapeXML(s)}</${xmlName}>`
-            );
+          // Handle simple properties
+          const s = stringifyValue(value);
+          children.push(
+            `${indent}    <${xmlName}>${escapeXML(s)}</${xmlName}>`
+          );
         }
       }
 
@@ -153,7 +165,7 @@ export class Base {
       const closingTag = `${indent}</${nodeName}>`;
 
       // Combine everything
-  if (children.length > 0) {
+      if (children.length > 0) {
         return `${openingTag}\n${
           textContent ? `${indent}    ${escapeXML(textContent)}\n` : ""
         }${children.join("\n")}\n${closingTag}`;
@@ -202,7 +214,7 @@ export class Base {
         continue;
 
       const value = this[key];
-  if (value === undefined || value === null) continue; // Skip undefined or null values
+      if (value === undefined || value === null) continue; // Skip undefined or null values
 
       // Use metadata to determine if this is an attribute, content, or element
       const metaInfo = meta[key] || {};
