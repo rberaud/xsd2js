@@ -10,7 +10,7 @@ Quick start
 
 Big picture (1-paragraph)
 
-- xsd2js is an ESM Node CLI that reads an XSD, extracts types, and generates JS classes. The generator produces classes that extend a template `Base` which implements `fromXML`/`toXML`/`toObject`. XML parsing uses `xml2js` + a local normalizer that converts xml2js {$, _, $$} into attributes (`@_name`), text (`#text`) and grouped children.
+- xsd2js is an ESM Node CLI that reads an XSD, extracts types, and generates JS classes. The generator produces classes that extend a template `Base` which implements `fromXML`/`toXML`. XML parsing uses `xml2js` + a local normalizer that converts xml2js {$, _, $$} into attributes (`@_name`), text (`#text`) and grouped children.
 
 Key files and responsibilities
 
@@ -28,7 +28,7 @@ Important runtime conventions (XML ↔ JS)
 - Attributes: keys prefixed with `@_` by default (e.g. `@_Locale`). `--transparent-attributes` toggles exposing them without `@_`.
 - Text content: stored under `#text`. Constructors should prefer `data["#text"]` for simpleContent.
 - Primitives: `src/constants.js` contains `XSD_TYPE_TO_JS`. Generator must not `new` primitives (e.g., `xs:string` is a plain string).
-- xs:any: the codebase preserves raw xml2js nodes. `fromXML()` attaches a non-enumerable `__rawChildrenMap` built from the raw xml2js `.$$` children; the constructor for `isAny` properties prefers this map so original subtree is preserved. `toObject()` expands the map via `normalizeXml2js` and `toXML()` can emit fragments via `xml2jsChildToXML`.
+- xs:any: the codebase preserves raw xml2js nodes. `fromXML()` attaches a non-enumerable `__rawChildrenMap` built from the raw xml2js `.$$` children; the constructor for `isAny` properties prefers this map so original subtree is preserved. `toXML()` can emit fragments via `xml2jsChildToXML`.
 
 Metadata shape (used by Base and generated classes)
 
@@ -50,7 +50,6 @@ Debugging tips
 
 - Template mistakes propagate to generated code; regenerate outputs and run `node` on the generated files to detect syntax errors quickly.
 - Serialization issues often come from not coercing wrapper objects—use the `stringifyValue()` approach in the template to force string values before emitting XML.
-- For xs:any roundtrips inspect the instance's `__rawChildrenMap` and output of `toObject()`; `console.dir(obj, { depth: 4 })` is handy in tests.
 
 Developer workflows
 

@@ -1,6 +1,6 @@
 {
   "name": "xsd2js",
-  "version": "1.0.6",
+  "version": "1.0.7",
   "description": "A simple XSD to JS file generator, with serialization/unserialization",
   "keywords": [
     "XSD",
@@ -15,7 +15,7 @@
   "type": "module",
   "main": "./src/main.js",
   "scripts": {
-    "test": "vitest",
+    "test": "vitest run",
     "demo": "node ./src/main.js -i ./examples/UANodeSet.xsd -o ./examples/generated -multiple-files --XSD-type --XML-type --transparent-attributes"
   },
   "repository": {

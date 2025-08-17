@@ -5,7 +5,7 @@ import { parseStringPromise } from "xml2js";
  * Generated classes will extend this.
  */
 // Local normalizer so generated Base.js is self-contained wherever copied.
-function normalizeXml2js(node) {
+export function normalizeXml2js(node) {
   if (node === null || node === undefined) return node;
   if (typeof node !== "object") return node;
   const result = {};
@@ -108,8 +108,8 @@ export class Base {
       let textContent = "";
       const children = [];
 
-  // Retrieve merged metadata for the class (includes superclasses)
-  const meta = getMergedXSDMeta(node.constructor) || {};
+      // Retrieve merged metadata for the class (includes superclasses)
+      const meta = getMergedXSDMeta(node.constructor) || {};
 
       for (const key in node) {
         if (

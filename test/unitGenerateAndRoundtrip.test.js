@@ -7,8 +7,8 @@ import { parseXsd } from "../src/parser.js";
 import { buildClassCode, buildSimpleTypeCode } from "../src/generator.js";
 import { writeOutput } from "../src/writer.js";
 import { parseStringPromise } from "xml2js";
-import { normalizeXml2js } from "../src/xmlNormalizer.js";
 import { vi, describe, it, beforeAll, expect } from "vitest";
+import { normalizeXml2js } from "../template/base.js";
 
 const xsdFile =
   process.env.XSD_FILE || path.resolve("examples", "UANodeSet.xsd");
@@ -33,8 +33,7 @@ beforeAll(async () => {
     "text-attribute-name": "value",
     onlyString: true,
   };
-
-  // Read and parse XSD
+  // // Read and parse XSD
   const xsdContent = fs.readFileSync(xsdFile, "utf-8");
   const raw = await parseStringPromise(xsdContent, {
     explicitChildren: true,
@@ -45,14 +44,12 @@ beforeAll(async () => {
     explicitRoot: true,
   });
   const schemaObj = normalizeXml2js(raw);
-
   const { complexTypes, simpleTypes } = parseXsd(schemaObj);
   generatedClasses = complexTypes.map((typeDef) =>
     buildClassCode(typeDef, config, schemaObj)
   );
   generatedSimpleTypes = simpleTypes.map(buildSimpleTypeCode);
-
-  // Write generated classes to output folder
+  // // Write generated classes to output folder
   writeOutput({ generatedClasses, generatedSimpleTypes, config });
 });
 
