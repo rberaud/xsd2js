@@ -11,6 +11,7 @@ Quick start
 Big picture (1-paragraph)
 
 - xsd2js is an ESM Node CLI that reads an XSD, extracts types, and generates JS classes. The generator produces classes that extend a template `Base` which implements `fromXML`/`toXML`. XML parsing uses `xml2js` + a local normalizer that converts xml2js {$, _, $$} into attributes (`@_name`), text (`#text`) and grouped children.
+- All the source code is in the /src folder. The /test folder is for 'vitest' test files. in the /test/generated-unit folder are generated files by the /test/unitGenerateAndRoundtrip.test.js . Same thing for the /examples folder that hosts some generated files.
 
 Key files and responsibilities
 
