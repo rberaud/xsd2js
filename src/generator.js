@@ -35,21 +35,28 @@ export { buildSimpleTypeCode } from "./simpleTypeGenerator.js";
  * @param {Set<string>} dependencies - Set to collect names of other classes this class depends on (for imports).
  * @returns {string} The constructor body code as a string, initializing all properties.
  */
-function buildConstructor(properties, dependencies) {
+function buildConstructor(properties, dependencies, generateAccessors) {
   return properties
     .map((prop) => {
       const isPrimitive = !!XSD_TYPE_TO_JS[prop.type];
       // Handle text content nodes like <xs:simpleContent base="xs:string"> mapped to xmlName '#text'
       if (prop.xmlName === "#text") {
         // prefer normalized '#text' key, fall back to property name for compatibility
+        if (generateAccessors) {
+          return `this._${prop.name} = data["#text"] !== undefined ? data["#text"] : data.${prop.name};`;
+        }
         return `this.${prop.name} = data["#text"] !== undefined ? data["#text"] : data.${prop.name};`;
       }
 
       if (isPrimitive) {
         if (prop.isAttribute) {
-          return `this.${prop.name} = data["${prop.xmlName}"];`;
+          return generateAccessors
+            ? `this._${prop.name} = data["${prop.xmlName}"];`
+            : `this.${prop.name} = data["${prop.xmlName}"];`;
         }
-        return `this.${prop.name} = data.${prop.name};`;
+        return generateAccessors
+          ? `this._${prop.name} = data.${prop.name};`
+          : `this.${prop.name} = data.${prop.name};`;
       }
       if (prop.type) {
         const dependencyName = prop.type.startsWith("xs:")
@@ -60,19 +67,29 @@ function buildConstructor(properties, dependencies) {
         }
         if (prop.isList) {
           if (XSD_TYPE_TO_JS[prop.type]) {
-            return `this.${prop.name} = data.${prop.name} ? [].concat(data.${prop.name}) : [];`;
+            return generateAccessors
+              ? `this._${prop.name} = data.${prop.name} ? [].concat(data.${prop.name}) : [];`
+              : `this.${prop.name} = data.${prop.name} ? [].concat(data.${prop.name}) : [];`;
           }
-          return `this.${prop.name} = data.${prop.name} ? [].concat(data.${prop.name}).map(item => new ${dependencyName}(item)) : [];`;
+          return generateAccessors
+            ? `this._${prop.name} = data.${prop.name} ? [].concat(data.${prop.name}).map(item => new ${dependencyName}(item)) : [];`
+            : `this.${prop.name} = data.${prop.name} ? [].concat(data.${prop.name}).map(item => new ${dependencyName}(item)) : [];`;
         }
         // Handle both direct data and data under the xmlName for flexibility
         const dataAccess = `data["${prop.xmlName}"] || data["${prop.name}"]`;
         if (XSD_TYPE_TO_JS[prop.type]) {
-          return `this.${prop.name} = ${dataAccess};`;
+          return generateAccessors
+            ? `this._${prop.name} = ${dataAccess};`
+            : `this.${prop.name} = ${dataAccess};`;
         }
-        return `this.${prop.name} = ${dataAccess} ? new ${dependencyName}(${dataAccess}) : undefined;`;
+        return generateAccessors
+          ? `this._${prop.name} = ${dataAccess} ? new ${dependencyName}(${dataAccess}) : undefined;`
+          : `this.${prop.name} = ${dataAccess} ? new ${dependencyName}(${dataAccess}) : undefined;`;
       }
       // Handle properties with no type (e.g. from <xs:any>)
-      return `this.${prop.name} = data.${prop.name};`;
+      return generateAccessors
+        ? `this._${prop.name} = data.${prop.name};`
+        : `this.${prop.name} = data.${prop.name};`;
     })
     .map((line) => `        ${line}`)
     .join("\n");
@@ -145,11 +162,54 @@ export function buildClassCode(typeDef, config, schemaObj) {
 
   // Use the new, clean property extractor
   const properties = extractProperties(typeDef, config, groupMap, attrGroupMap);
-
-  const constructorBody = buildConstructor(properties, dependencies);
+  const constructorBody = buildConstructor(
+    properties,
+    dependencies,
+    !!config["generate-accessors"]
+  );
   const metaMethod = buildMetadata(properties);
 
   // The final code assembly is now much clearer
+  // If accessors requested, emit getter/setter methods for each property that delegate to hidden backing fields.
+  const accessorsCode = config["generate-accessors"]
+    ? properties
+        .map((p) => {
+          const name = p.name;
+          // Build setter body mirroring constructor coercion logic when needed
+          if (p.xmlName === "#text") {
+            return `    get ${name}() { return this._${name}; }
+    set ${name}(v) { this._${name} = v; }`;
+          }
+          const isPrimitive = !!XSD_TYPE_TO_JS[p.type];
+          if (isPrimitive) {
+            return `    get ${name}() { return this._${name}; }
+    set ${name}(v) { this._${name} = v; }`;
+          }
+          if (p.type) {
+            const dependencyName = p.type.startsWith("xs:")
+              ? XSD_TYPE_TO_JS[p.type]
+              : p.type.split(":").pop();
+            if (p.isList) {
+              if (XSD_TYPE_TO_JS[p.type]) {
+                return `    get ${name}() { return this._${name}; }
+    set ${name}(v) { this._${name} = v ? [].concat(v) : []; }`;
+              }
+              return `    get ${name}() { return this._${name}; }
+    set ${name}(v) { this._${name} = v ? [].concat(v).map(item => item instanceof ${dependencyName} ? item : new ${dependencyName}(item)) : []; }`;
+            }
+            if (XSD_TYPE_TO_JS[p.type]) {
+              return `    get ${name}() { return this._${name}; }
+    set ${name}(v) { this._${name} = v; }`;
+            }
+            return `    get ${name}() { return this._${name}; }
+    set ${name}(v) { this._${name} = v ? (v instanceof ${dependencyName} ? v : new ${dependencyName}(v)) : undefined; }`;
+          }
+          return `    get ${name}() { return this._${name}; }
+    set ${name}(v) { this._${name} = v; }`;
+        })
+        .join("\n\n")
+    : "";
+
   const code = `
 class ${className} extends ${parentClass} {
     /**
@@ -159,6 +219,9 @@ class ${className} extends ${parentClass} {
         super(data);
 ${constructorBody}
     }
+
+${accessorsCode}
+
 ${metaMethod}
 }`;
 

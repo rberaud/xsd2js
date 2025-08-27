@@ -104,6 +104,12 @@ function parseArguments() {
       type: "string",
       default: "value",
     })
+    .option("generate-accessors", {
+      describe:
+        "When set, generated classes will expose properties via instance getters/setters backed by hidden internal fields (avoids direct property mutation).",
+      type: "boolean",
+      default: true,
+    })
     .option("only-string", {
       describe:
         "Disable type conversion for all values from the XML file. All values will be strings.",
@@ -146,7 +152,9 @@ async function main() {
     const generatedClasses = complexTypes.map((typeDef) =>
       buildClassCode(typeDef, config, schemaObj)
     );
-    const generatedSimpleTypes = simpleTypes.map(buildSimpleTypeCode);
+    const generatedSimpleTypes = simpleTypes.map((t) =>
+      buildSimpleTypeCode(t, config)
+    );
 
     // 4. Write the generated code to files
     writeOutput({ generatedClasses, generatedSimpleTypes, config });

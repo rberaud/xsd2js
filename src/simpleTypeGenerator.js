@@ -20,7 +20,7 @@ import { XSD_PREFIX } from "./constants.js";
  * @param {object} typeDef - A simpleType definition from the parsed XSD.
  * @returns {{typeName: string, code: string}|null}
  */
-export function buildSimpleTypeCode(typeDef) {
+export function buildSimpleTypeCode(typeDef, config = {}) {
   const typeName = typeDef["@_name"];
   const restriction = typeDef[`${XSD_PREFIX}restriction`];
   // Other simple type variations like union or list can be added here.
@@ -31,6 +31,7 @@ export function buildSimpleTypeCode(typeDef) {
     const values = enums.map((e) => `'${e["@_value"]}'`).join(", ");
     //    const baseType = restriction["@_base"]?.replace(/^.*:/, "") || "string";
 
+    const useAccessors = !!config["generate-accessors"];
     const code = `
 export class ${typeName} {
     /**
@@ -41,15 +42,22 @@ export class ${typeName} {
             // Optional: throw an error for invalid enum values.
             // console.warn(\`Invalid value for ${typeName}: \${value}\`);
         }
-        this.value = value;
+        ${useAccessors ? "this._value = value;" : "this.value = value;"}
     }
 
     static get values() {
         return [${values}];
     }
 
+    ${
+      useAccessors
+        ? `get value() { return this._value; }
+    set value(v) { this._value = v; }`
+        : ""
+    }
+
     toString() {
-        return this.value;
+        return ${useAccessors ? "this._value" : "this.value"};
     }
 }
 `;

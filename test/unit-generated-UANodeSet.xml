@@ -1,206 +1,561 @@
-<UANodeSet LastModified="2025-08-13T00:39:28.546Z">
-    <UAObject NodeId="ns=1;i=5000" BrowseName="1:http://www.companyA.com/OPC-UA/Packaging.xsd" SymbolicName="http___www_companyA_com_OPC_UA_Packaging_xsd" ParentNodeId="i=11715">
-        <DisplayName>http://www.companyA.com/OPC-UA/Packaging.xsd        </DisplayName>
-        <References>
-            <Reference ReferenceType="HasComponent" IsForward="false">i=11715            </Reference>
-            <Reference ReferenceType="HasTypeDefinition">i=11616            </Reference>
-        </References>
-    </UAObject>
-    <UAObject NodeId="ns=1;i=5001" BrowseName="Default Binary" SymbolicName="DefaultBinary">
-        <DisplayName>Default Binary        </DisplayName>
-        <References>
-            <Reference ReferenceType="HasTypeDefinition">i=76            </Reference>
-        </References>
-    </UAObject>
-    <UAObject NodeId="ns=1;i=5002" BrowseName="Default XML" SymbolicName="DefaultXML">
-        <DisplayName>Default XML        </DisplayName>
-        <References>
-            <Reference ReferenceType="HasTypeDefinition">i=76            </Reference>
-        </References>
-    </UAObject>
-    <UAObject NodeId="ns=1;i=5003" BrowseName="1:PackagingScannerA" ParentNodeId="ns=1;i=5004">
-        <DisplayName>PackagingScannerA        </DisplayName>
-        <References>
-            <Reference ReferenceType="Organizes" IsForward="false">ns=1;i=5004            </Reference>
-            <Reference ReferenceType="HasTypeDefinition">ns=1;i=1000            </Reference>
-        </References>
-    </UAObject>
-    <UAObject NodeId="ns=1;i=5004" BrowseName="1:Equipments" ParentNodeId="i=2253">
-        <DisplayName>Equipments        </DisplayName>
-        <References>
-            <Reference ReferenceType="Organizes" IsForward="false">i=2253            </Reference>
-            <Reference ReferenceType="HasTypeDefinition">i=61            </Reference>
-        </References>
-    </UAObject>
-    <UAObject NodeId="ns=1;i=5005" BrowseName="1:PackagingScannerB" ParentNodeId="ns=1;i=5004">
-        <DisplayName>PackagingScannerB        </DisplayName>
-        <References>
-            <Reference ReferenceType="Organizes" IsForward="false">ns=1;i=5004            </Reference>
-            <Reference ReferenceType="HasTypeDefinition">ns=1;i=1000            </Reference>
-        </References>
-    </UAObject>
-    <UAVariable NodeId="ns=1;i=6000" BrowseName="IsNamespaceSubset" ParentNodeId="ns=1;i=5000" DataType="Boolean">
-        <DisplayName>IsNamespaceSubset        </DisplayName>
-        <References>
-            <Reference ReferenceType="HasProperty" IsForward="false">ns=1;i=5000            </Reference>
-            <Reference ReferenceType="HasTypeDefinition">i=68            </Reference>
-        </References>
-    </UAVariable>
-    <UAVariable NodeId="ns=1;i=6001" BrowseName="NamespacePublicationDate" ParentNodeId="ns=1;i=5000" DataType="DateTime">
-        <DisplayName>NamespacePublicationDate        </DisplayName>
-        <References>
-            <Reference ReferenceType="HasProperty" IsForward="false">ns=1;i=5000            </Reference>
-            <Reference ReferenceType="HasTypeDefinition">i=68            </Reference>
-        </References>
-        <Value>[object Object]</Value>
-    </UAVariable>
-    <UAVariable NodeId="ns=1;i=6002" BrowseName="NamespaceUri" ParentNodeId="ns=1;i=5000" DataType="String">
-        <DisplayName>NamespaceUri        </DisplayName>
-        <References>
-            <Reference ReferenceType="HasProperty" IsForward="false">ns=1;i=5000            </Reference>
-            <Reference ReferenceType="HasTypeDefinition">i=68            </Reference>
-        </References>
-        <Value>[object Object]</Value>
-    </UAVariable>
-    <UAVariable NodeId="ns=1;i=6003" BrowseName="NamespaceVersion" ParentNodeId="ns=1;i=5000" DataType="String">
-        <DisplayName>NamespaceVersion        </DisplayName>
-        <References>
-            <Reference ReferenceType="HasProperty" IsForward="false">ns=1;i=5000            </Reference>
-            <Reference ReferenceType="HasTypeDefinition">i=68            </Reference>
-        </References>
-        <Value>[object Object]</Value>
-    </UAVariable>
-    <UAVariable NodeId="ns=1;i=6004" BrowseName="StaticNodeIdTypes" ParentNodeId="ns=1;i=5000" DataType="i=256" ValueRank="1">
-        <DisplayName>StaticNodeIdTypes        </DisplayName>
-        <References>
-            <Reference ReferenceType="HasProperty" IsForward="false">ns=1;i=5000            </Reference>
-            <Reference ReferenceType="HasTypeDefinition">i=68            </Reference>
-        </References>
-    </UAVariable>
-    <UAVariable NodeId="ns=1;i=6005" BrowseName="StaticNumericNodeIdRange" ParentNodeId="ns=1;i=5000" DataType="i=291" ValueRank="1">
-        <DisplayName>StaticNumericNodeIdRange        </DisplayName>
-        <References>
-            <Reference ReferenceType="HasProperty" IsForward="false">ns=1;i=5000            </Reference>
-            <Reference ReferenceType="HasTypeDefinition">i=68            </Reference>
-        </References>
-    </UAVariable>
-    <UAVariable NodeId="ns=1;i=6006" BrowseName="StaticStringNodeIdPattern" ParentNodeId="ns=1;i=5000" DataType="String">
-        <DisplayName>StaticStringNodeIdPattern        </DisplayName>
-        <References>
-            <Reference ReferenceType="HasProperty" IsForward="false">ns=1;i=5000            </Reference>
-            <Reference ReferenceType="HasTypeDefinition">i=68            </Reference>
-        </References>
-    </UAVariable>
-    <UAVariable NodeId="ns=1;i=6007" BrowseName="DefaultRolePermissions" ParentNodeId="ns=1;i=5000" DataType="i=96" ValueRank="1">
-        <DisplayName>DefaultRolePermissions        </DisplayName>
-        <References>
-            <Reference ReferenceType="HasProperty" IsForward="false">ns=1;i=5000            </Reference>
-            <Reference ReferenceType="HasTypeDefinition">i=68            </Reference>
-        </References>
-    </UAVariable>
-    <UAVariable NodeId="ns=1;i=6008" BrowseName="DefaultAccessRestrictions" ParentNodeId="ns=1;i=5000" DataType="i=95">
-        <DisplayName>DefaultAccessRestrictions        </DisplayName>
-        <References>
-            <Reference ReferenceType="HasProperty" IsForward="false">ns=1;i=5000            </Reference>
-            <Reference ReferenceType="HasTypeDefinition">i=68            </Reference>
-        </References>
-    </UAVariable>
-    <UAVariable NodeId="ns=1;i=6015" BrowseName="1:Name" ParentNodeId="ns=1;i=1000" DataType="String" AccessLevel="3" UserAccessLevel="3">
-        <DisplayName>Name        </DisplayName>
-        <References>
-            <Reference ReferenceType="HasTypeDefinition">i=63            </Reference>
-            <Reference ReferenceType="HasModellingRule">i=80            </Reference>
-        </References>
-    </UAVariable>
-    <UAVariable NodeId="ns=1;i=6016" BrowseName="1:MachineTemperature" ParentNodeId="ns=1;i=1000" DataType="ns=1;i=3000" AccessLevel="3" UserAccessLevel="3">
-        <DisplayName>MachineTemperature        </DisplayName>
-        <References>
-            <Reference ReferenceType="HasTypeDefinition">i=63            </Reference>
-            <Reference ReferenceType="HasModellingRule">i=80            </Reference>
-        </References>
-    </UAVariable>
-    <UAVariable NodeId="ns=1;i=6017" BrowseName="InputArguments" ParentNodeId="ns=1;i=7000" DataType="i=296" ValueRank="1" ArrayDimensions="1">
-        <DisplayName>InputArguments        </DisplayName>
-        <Description>the definition of the input argument of method 1:3DScanner.1:ScanTemperature        </Description>
-        <References>
-            <Reference ReferenceType="HasTypeDefinition">i=68            </Reference>
-            <Reference ReferenceType="HasModellingRule">i=78            </Reference>
-        </References>
-        <Value>[object Object]</Value>
-    </UAVariable>
-    <UAVariable NodeId="ns=1;i=6018" BrowseName="OutputArguments" ParentNodeId="ns=1;i=7000" DataType="i=296" ValueRank="1" ArrayDimensions="1">
-        <DisplayName>OutputArguments        </DisplayName>
-        <Description>the definition of the output arguments of method 1:3DScanner.1:ScanTemperature        </Description>
-        <References>
-            <Reference ReferenceType="HasTypeDefinition">i=68            </Reference>
-            <Reference ReferenceType="HasModellingRule">i=78            </Reference>
-        </References>
-        <Value>[object Object]</Value>
-    </UAVariable>
-    <UAMethod NodeId="ns=1;i=7000" BrowseName="1:ScanTemperature" ParentNodeId="ns=1;i=1000">
-        <DisplayName>ScanTemperature        </DisplayName>
-        <References>
-            <Reference ReferenceType="HasModellingRule">i=80            </Reference>
-            <Reference ReferenceType="HasProperty">ns=1;i=6017            </Reference>
-            <Reference ReferenceType="HasProperty">ns=1;i=6018            </Reference>
-        </References>
-    </UAMethod>
-    <UAObjectType NodeId="ns=1;i=1000" BrowseName="1:3DScanner">
-        <DisplayName>3DScanner        </DisplayName>
-        <References>
-            <Reference ReferenceType="HasSubtype" IsForward="false">i=58            </Reference>
-            <Reference ReferenceType="HasComponent">ns=1;i=6015            </Reference>
-            <Reference ReferenceType="HasComponent">ns=1;i=6016            </Reference>
-            <Reference ReferenceType="HasComponent">ns=1;i=7000            </Reference>
-        </References>
-    </UAObjectType>
-    <UADataType NodeId="ns=1;i=3000" BrowseName="1:Temperature">
-        <DisplayName>Temperature        </DisplayName>
-        <References>
-            <Reference ReferenceType="HasSubtype" IsForward="false">i=10            </Reference>
-        </References>
-    </UADataType>
-    <UADataType NodeId="ns=1;i=3001" BrowseName="1:2DLocalization" SymbolicName="S2DLocalization">
-        <DisplayName>2DLocalization        </DisplayName>
-        <References>
-            <Reference ReferenceType="HasSubtype" IsForward="false">i=22            </Reference>
-            <Reference ReferenceType="HasEncoding">ns=1;i=5001            </Reference>
-            <Reference ReferenceType="HasEncoding">ns=1;i=5002            </Reference>
-        </References>
-        <Definition Name="1:2DLocalization">
-            <Field Name="X-Coordinate" SymbolicName="X" DataType="Int32">            </Field>
-            <Field Name="Y-Coordinate" SymbolicName="Y" DataType="Int32">            </Field>
-        </Definition>
-    </UADataType>
-    <NamespaceUris>
-        <Uri>[object Object]</Uri>
-    </NamespaceUris>
-    <Models>
-        <Model ModelUri="http://www.companyA.com/OPC-UA/Packaging.xsd" Version="1.00" PublicationDate="2025-08-13T02:16:09+02:00">
-            <RequiredModel ModelUri="http://opcfoundation.org/UA/" Version="1.05.03" PublicationDate="2023-12-15T00:00:00Z">            </RequiredModel>
-        </Model>
-    </Models>
-    <Aliases>
-        <Alias Alias="Boolean">i=1        </Alias>
-        <Alias Alias="Int32">i=6        </Alias>
-        <Alias Alias="DateTime">i=13        </Alias>
-        <Alias Alias="String">i=12        </Alias>
-        <Alias Alias="ByteString">i=15        </Alias>
-        <Alias Alias="HasComponent">i=47        </Alias>
-        <Alias Alias="HasProperty">i=46        </Alias>
-        <Alias Alias="Organizes">i=35        </Alias>
-        <Alias Alias="HasSubtype">i=45        </Alias>
-        <Alias Alias="HasTypeDefinition">i=40        </Alias>
-        <Alias Alias="HasModellingRule">i=37        </Alias>
-        <Alias Alias="HasEncoding">i=38        </Alias>
-        <Alias Alias="HasDescription">i=39        </Alias>
-    </Aliases>
-    <Extensions>
-        <Extension>
+<UANodeSet>
+    <_UAObject>
+        <_DisplayName>
+            <_value>http://www.companyA.com/OPC-UA/Packaging.xsd</_value>
+        </_DisplayName>
+        <_References>
+            <_Reference>
+                <_value>i=11715</_value>
+                <_ReferenceType>HasComponent</_ReferenceType>
+                <_IsForward>false</_IsForward>
+            </_Reference>
+            <_Reference>
+                <_value>i=11616</_value>
+                <_ReferenceType>HasTypeDefinition</_ReferenceType>
+            </_Reference>
+        </_References>
+        <_NodeId>ns=1;i=5000</_NodeId>
+        <_BrowseName>1:http://www.companyA.com/OPC-UA/Packaging.xsd</_BrowseName>
+        <_SymbolicName>http___www_companyA_com_OPC_UA_Packaging_xsd</_SymbolicName>
+        <_ParentNodeId>i=11715</_ParentNodeId>
+    </_UAObject>
+    <_UAObject>
+        <_DisplayName>
+            <_value>Default Binary</_value>
+        </_DisplayName>
+        <_References>
+            <_Reference>
+                <_value>i=76</_value>
+                <_ReferenceType>HasTypeDefinition</_ReferenceType>
+            </_Reference>
+        </_References>
+        <_NodeId>ns=1;i=5001</_NodeId>
+        <_BrowseName>Default Binary</_BrowseName>
+        <_SymbolicName>DefaultBinary</_SymbolicName>
+    </_UAObject>
+    <_UAObject>
+        <_DisplayName>
+            <_value>Default XML</_value>
+        </_DisplayName>
+        <_References>
+            <_Reference>
+                <_value>i=76</_value>
+                <_ReferenceType>HasTypeDefinition</_ReferenceType>
+            </_Reference>
+        </_References>
+        <_NodeId>ns=1;i=5002</_NodeId>
+        <_BrowseName>Default XML</_BrowseName>
+        <_SymbolicName>DefaultXML</_SymbolicName>
+    </_UAObject>
+    <_UAObject>
+        <_DisplayName>
+            <_value>PackagingScannerA</_value>
+        </_DisplayName>
+        <_References>
+            <_Reference>
+                <_value>ns=1;i=5004</_value>
+                <_ReferenceType>Organizes</_ReferenceType>
+                <_IsForward>false</_IsForward>
+            </_Reference>
+            <_Reference>
+                <_value>ns=1;i=1000</_value>
+                <_ReferenceType>HasTypeDefinition</_ReferenceType>
+            </_Reference>
+        </_References>
+        <_NodeId>ns=1;i=5003</_NodeId>
+        <_BrowseName>1:PackagingScannerA</_BrowseName>
+        <_ParentNodeId>ns=1;i=5004</_ParentNodeId>
+    </_UAObject>
+    <_UAObject>
+        <_DisplayName>
+            <_value>Equipments</_value>
+        </_DisplayName>
+        <_References>
+            <_Reference>
+                <_value>i=2253</_value>
+                <_ReferenceType>Organizes</_ReferenceType>
+                <_IsForward>false</_IsForward>
+            </_Reference>
+            <_Reference>
+                <_value>i=61</_value>
+                <_ReferenceType>HasTypeDefinition</_ReferenceType>
+            </_Reference>
+        </_References>
+        <_NodeId>ns=1;i=5004</_NodeId>
+        <_BrowseName>1:Equipments</_BrowseName>
+        <_ParentNodeId>i=2253</_ParentNodeId>
+    </_UAObject>
+    <_UAObject>
+        <_DisplayName>
+            <_value>PackagingScannerB</_value>
+        </_DisplayName>
+        <_References>
+            <_Reference>
+                <_value>ns=1;i=5004</_value>
+                <_ReferenceType>Organizes</_ReferenceType>
+                <_IsForward>false</_IsForward>
+            </_Reference>
+            <_Reference>
+                <_value>ns=1;i=1000</_value>
+                <_ReferenceType>HasTypeDefinition</_ReferenceType>
+            </_Reference>
+        </_References>
+        <_NodeId>ns=1;i=5005</_NodeId>
+        <_BrowseName>1:PackagingScannerB</_BrowseName>
+        <_ParentNodeId>ns=1;i=5004</_ParentNodeId>
+    </_UAObject>
+    <_UAVariable>
+        <_DisplayName>
+            <_value>IsNamespaceSubset</_value>
+        </_DisplayName>
+        <_References>
+            <_Reference>
+                <_value>ns=1;i=5000</_value>
+                <_ReferenceType>HasProperty</_ReferenceType>
+                <_IsForward>false</_IsForward>
+            </_Reference>
+            <_Reference>
+                <_value>i=68</_value>
+                <_ReferenceType>HasTypeDefinition</_ReferenceType>
+            </_Reference>
+        </_References>
+        <_NodeId>ns=1;i=6000</_NodeId>
+        <_BrowseName>IsNamespaceSubset</_BrowseName>
+        <_ParentNodeId>ns=1;i=5000</_ParentNodeId>
+        <_DataType>Boolean</_DataType>
+    </_UAVariable>
+    <_UAVariable>
+        <_DisplayName>
+            <_value>NamespacePublicationDate</_value>
+        </_DisplayName>
+        <_References>
+            <_Reference>
+                <_value>ns=1;i=5000</_value>
+                <_ReferenceType>HasProperty</_ReferenceType>
+                <_IsForward>false</_IsForward>
+            </_Reference>
+            <_Reference>
+                <_value>i=68</_value>
+                <_ReferenceType>HasTypeDefinition</_ReferenceType>
+            </_Reference>
+        </_References>
+        <_NodeId>ns=1;i=6001</_NodeId>
+        <_BrowseName>NamespacePublicationDate</_BrowseName>
+        <_ParentNodeId>ns=1;i=5000</_ParentNodeId>
+        <_Value>[object Object]</_Value>
+        <_DataType>DateTime</_DataType>
+    </_UAVariable>
+    <_UAVariable>
+        <_DisplayName>
+            <_value>NamespaceUri</_value>
+        </_DisplayName>
+        <_References>
+            <_Reference>
+                <_value>ns=1;i=5000</_value>
+                <_ReferenceType>HasProperty</_ReferenceType>
+                <_IsForward>false</_IsForward>
+            </_Reference>
+            <_Reference>
+                <_value>i=68</_value>
+                <_ReferenceType>HasTypeDefinition</_ReferenceType>
+            </_Reference>
+        </_References>
+        <_NodeId>ns=1;i=6002</_NodeId>
+        <_BrowseName>NamespaceUri</_BrowseName>
+        <_ParentNodeId>ns=1;i=5000</_ParentNodeId>
+        <_Value>[object Object]</_Value>
+        <_DataType>String</_DataType>
+    </_UAVariable>
+    <_UAVariable>
+        <_DisplayName>
+            <_value>NamespaceVersion</_value>
+        </_DisplayName>
+        <_References>
+            <_Reference>
+                <_value>ns=1;i=5000</_value>
+                <_ReferenceType>HasProperty</_ReferenceType>
+                <_IsForward>false</_IsForward>
+            </_Reference>
+            <_Reference>
+                <_value>i=68</_value>
+                <_ReferenceType>HasTypeDefinition</_ReferenceType>
+            </_Reference>
+        </_References>
+        <_NodeId>ns=1;i=6003</_NodeId>
+        <_BrowseName>NamespaceVersion</_BrowseName>
+        <_ParentNodeId>ns=1;i=5000</_ParentNodeId>
+        <_Value>[object Object]</_Value>
+        <_DataType>String</_DataType>
+    </_UAVariable>
+    <_UAVariable>
+        <_DisplayName>
+            <_value>StaticNodeIdTypes</_value>
+        </_DisplayName>
+        <_References>
+            <_Reference>
+                <_value>ns=1;i=5000</_value>
+                <_ReferenceType>HasProperty</_ReferenceType>
+                <_IsForward>false</_IsForward>
+            </_Reference>
+            <_Reference>
+                <_value>i=68</_value>
+                <_ReferenceType>HasTypeDefinition</_ReferenceType>
+            </_Reference>
+        </_References>
+        <_NodeId>ns=1;i=6004</_NodeId>
+        <_BrowseName>StaticNodeIdTypes</_BrowseName>
+        <_ParentNodeId>ns=1;i=5000</_ParentNodeId>
+        <_DataType>i=256</_DataType>
+        <_ValueRank>1</_ValueRank>
+    </_UAVariable>
+    <_UAVariable>
+        <_DisplayName>
+            <_value>StaticNumericNodeIdRange</_value>
+        </_DisplayName>
+        <_References>
+            <_Reference>
+                <_value>ns=1;i=5000</_value>
+                <_ReferenceType>HasProperty</_ReferenceType>
+                <_IsForward>false</_IsForward>
+            </_Reference>
+            <_Reference>
+                <_value>i=68</_value>
+                <_ReferenceType>HasTypeDefinition</_ReferenceType>
+            </_Reference>
+        </_References>
+        <_NodeId>ns=1;i=6005</_NodeId>
+        <_BrowseName>StaticNumericNodeIdRange</_BrowseName>
+        <_ParentNodeId>ns=1;i=5000</_ParentNodeId>
+        <_DataType>i=291</_DataType>
+        <_ValueRank>1</_ValueRank>
+    </_UAVariable>
+    <_UAVariable>
+        <_DisplayName>
+            <_value>StaticStringNodeIdPattern</_value>
+        </_DisplayName>
+        <_References>
+            <_Reference>
+                <_value>ns=1;i=5000</_value>
+                <_ReferenceType>HasProperty</_ReferenceType>
+                <_IsForward>false</_IsForward>
+            </_Reference>
+            <_Reference>
+                <_value>i=68</_value>
+                <_ReferenceType>HasTypeDefinition</_ReferenceType>
+            </_Reference>
+        </_References>
+        <_NodeId>ns=1;i=6006</_NodeId>
+        <_BrowseName>StaticStringNodeIdPattern</_BrowseName>
+        <_ParentNodeId>ns=1;i=5000</_ParentNodeId>
+        <_DataType>String</_DataType>
+    </_UAVariable>
+    <_UAVariable>
+        <_DisplayName>
+            <_value>DefaultRolePermissions</_value>
+        </_DisplayName>
+        <_References>
+            <_Reference>
+                <_value>ns=1;i=5000</_value>
+                <_ReferenceType>HasProperty</_ReferenceType>
+                <_IsForward>false</_IsForward>
+            </_Reference>
+            <_Reference>
+                <_value>i=68</_value>
+                <_ReferenceType>HasTypeDefinition</_ReferenceType>
+            </_Reference>
+        </_References>
+        <_NodeId>ns=1;i=6007</_NodeId>
+        <_BrowseName>DefaultRolePermissions</_BrowseName>
+        <_ParentNodeId>ns=1;i=5000</_ParentNodeId>
+        <_DataType>i=96</_DataType>
+        <_ValueRank>1</_ValueRank>
+    </_UAVariable>
+    <_UAVariable>
+        <_DisplayName>
+            <_value>DefaultAccessRestrictions</_value>
+        </_DisplayName>
+        <_References>
+            <_Reference>
+                <_value>ns=1;i=5000</_value>
+                <_ReferenceType>HasProperty</_ReferenceType>
+                <_IsForward>false</_IsForward>
+            </_Reference>
+            <_Reference>
+                <_value>i=68</_value>
+                <_ReferenceType>HasTypeDefinition</_ReferenceType>
+            </_Reference>
+        </_References>
+        <_NodeId>ns=1;i=6008</_NodeId>
+        <_BrowseName>DefaultAccessRestrictions</_BrowseName>
+        <_ParentNodeId>ns=1;i=5000</_ParentNodeId>
+        <_DataType>i=95</_DataType>
+    </_UAVariable>
+    <_UAVariable>
+        <_DisplayName>
+            <_value>Name</_value>
+        </_DisplayName>
+        <_References>
+            <_Reference>
+                <_value>i=63</_value>
+                <_ReferenceType>HasTypeDefinition</_ReferenceType>
+            </_Reference>
+            <_Reference>
+                <_value>i=80</_value>
+                <_ReferenceType>HasModellingRule</_ReferenceType>
+            </_Reference>
+        </_References>
+        <_NodeId>ns=1;i=6015</_NodeId>
+        <_BrowseName>1:Name</_BrowseName>
+        <_ParentNodeId>ns=1;i=1000</_ParentNodeId>
+        <_DataType>String</_DataType>
+        <_AccessLevel>3</_AccessLevel>
+        <_UserAccessLevel>3</_UserAccessLevel>
+    </_UAVariable>
+    <_UAVariable>
+        <_DisplayName>
+            <_value>MachineTemperature</_value>
+        </_DisplayName>
+        <_References>
+            <_Reference>
+                <_value>i=63</_value>
+                <_ReferenceType>HasTypeDefinition</_ReferenceType>
+            </_Reference>
+            <_Reference>
+                <_value>i=80</_value>
+                <_ReferenceType>HasModellingRule</_ReferenceType>
+            </_Reference>
+        </_References>
+        <_NodeId>ns=1;i=6016</_NodeId>
+        <_BrowseName>1:MachineTemperature</_BrowseName>
+        <_ParentNodeId>ns=1;i=1000</_ParentNodeId>
+        <_DataType>ns=1;i=3000</_DataType>
+        <_AccessLevel>3</_AccessLevel>
+        <_UserAccessLevel>3</_UserAccessLevel>
+    </_UAVariable>
+    <_UAVariable>
+        <_DisplayName>
+            <_value>InputArguments</_value>
+        </_DisplayName>
+        <_Description>
+            <_value>the definition of the input argument of method 1:3DScanner.1:ScanTemperature</_value>
+        </_Description>
+        <_References>
+            <_Reference>
+                <_value>i=68</_value>
+                <_ReferenceType>HasTypeDefinition</_ReferenceType>
+            </_Reference>
+            <_Reference>
+                <_value>i=78</_value>
+                <_ReferenceType>HasModellingRule</_ReferenceType>
+            </_Reference>
+        </_References>
+        <_NodeId>ns=1;i=6017</_NodeId>
+        <_BrowseName>InputArguments</_BrowseName>
+        <_ParentNodeId>ns=1;i=7000</_ParentNodeId>
+        <_Value>[object Object]</_Value>
+        <_DataType>i=296</_DataType>
+        <_ValueRank>1</_ValueRank>
+        <_ArrayDimensions>1</_ArrayDimensions>
+    </_UAVariable>
+    <_UAVariable>
+        <_DisplayName>
+            <_value>OutputArguments</_value>
+        </_DisplayName>
+        <_Description>
+            <_value>the definition of the output arguments of method 1:3DScanner.1:ScanTemperature</_value>
+        </_Description>
+        <_References>
+            <_Reference>
+                <_value>i=68</_value>
+                <_ReferenceType>HasTypeDefinition</_ReferenceType>
+            </_Reference>
+            <_Reference>
+                <_value>i=78</_value>
+                <_ReferenceType>HasModellingRule</_ReferenceType>
+            </_Reference>
+        </_References>
+        <_NodeId>ns=1;i=6018</_NodeId>
+        <_BrowseName>OutputArguments</_BrowseName>
+        <_ParentNodeId>ns=1;i=7000</_ParentNodeId>
+        <_Value>[object Object]</_Value>
+        <_DataType>i=296</_DataType>
+        <_ValueRank>1</_ValueRank>
+        <_ArrayDimensions>1</_ArrayDimensions>
+    </_UAVariable>
+    <_UAMethod>
+        <_DisplayName>
+            <_value>ScanTemperature</_value>
+        </_DisplayName>
+        <_References>
+            <_Reference>
+                <_value>i=80</_value>
+                <_ReferenceType>HasModellingRule</_ReferenceType>
+            </_Reference>
+            <_Reference>
+                <_value>ns=1;i=6017</_value>
+                <_ReferenceType>HasProperty</_ReferenceType>
+            </_Reference>
+            <_Reference>
+                <_value>ns=1;i=6018</_value>
+                <_ReferenceType>HasProperty</_ReferenceType>
+            </_Reference>
+        </_References>
+        <_NodeId>ns=1;i=7000</_NodeId>
+        <_BrowseName>1:ScanTemperature</_BrowseName>
+        <_ParentNodeId>ns=1;i=1000</_ParentNodeId>
+    </_UAMethod>
+    <_UAObjectType>
+        <_DisplayName>
+            <_value>3DScanner</_value>
+        </_DisplayName>
+        <_References>
+            <_Reference>
+                <_value>i=58</_value>
+                <_ReferenceType>HasSubtype</_ReferenceType>
+                <_IsForward>false</_IsForward>
+            </_Reference>
+            <_Reference>
+                <_value>ns=1;i=6015</_value>
+                <_ReferenceType>HasComponent</_ReferenceType>
+            </_Reference>
+            <_Reference>
+                <_value>ns=1;i=6016</_value>
+                <_ReferenceType>HasComponent</_ReferenceType>
+            </_Reference>
+            <_Reference>
+                <_value>ns=1;i=7000</_value>
+                <_ReferenceType>HasComponent</_ReferenceType>
+            </_Reference>
+        </_References>
+        <_NodeId>ns=1;i=1000</_NodeId>
+        <_BrowseName>1:3DScanner</_BrowseName>
+    </_UAObjectType>
+    <_UADataType>
+        <_DisplayName>
+            <_value>Temperature</_value>
+        </_DisplayName>
+        <_References>
+            <_Reference>
+                <_value>i=10</_value>
+                <_ReferenceType>HasSubtype</_ReferenceType>
+                <_IsForward>false</_IsForward>
+            </_Reference>
+        </_References>
+        <_NodeId>ns=1;i=3000</_NodeId>
+        <_BrowseName>1:Temperature</_BrowseName>
+    </_UADataType>
+    <_UADataType>
+        <_DisplayName>
+            <_value>2DLocalization</_value>
+        </_DisplayName>
+        <_References>
+            <_Reference>
+                <_value>i=22</_value>
+                <_ReferenceType>HasSubtype</_ReferenceType>
+                <_IsForward>false</_IsForward>
+            </_Reference>
+            <_Reference>
+                <_value>ns=1;i=5001</_value>
+                <_ReferenceType>HasEncoding</_ReferenceType>
+            </_Reference>
+            <_Reference>
+                <_value>ns=1;i=5002</_value>
+                <_ReferenceType>HasEncoding</_ReferenceType>
+            </_Reference>
+        </_References>
+        <_NodeId>ns=1;i=3001</_NodeId>
+        <_BrowseName>1:2DLocalization</_BrowseName>
+        <_SymbolicName>S2DLocalization</_SymbolicName>
+        <_Definition>
+            <_Field>
+                <_Name>X-Coordinate</_Name>
+                <_SymbolicName>X</_SymbolicName>
+                <_DataType>Int32</_DataType>
+            </_Field>
+            <_Field>
+                <_Name>Y-Coordinate</_Name>
+                <_SymbolicName>Y</_SymbolicName>
+                <_DataType>Int32</_DataType>
+            </_Field>
+            <_Name>1:2DLocalization</_Name>
+        </_Definition>
+    </_UADataType>
+    <_NamespaceUris>
+        <_Uri>[object Object]</_Uri>
+    </_NamespaceUris>
+    <_Models>
+        <_Model>
+            <_RequiredModel>
+                <_ModelUri>http://opcfoundation.org/UA/</_ModelUri>
+                <_Version>1.05.03</_Version>
+                <_PublicationDate>2023-12-15T00:00:00Z</_PublicationDate>
+            </_RequiredModel>
+            <_ModelUri>http://www.companyA.com/OPC-UA/Packaging.xsd</_ModelUri>
+            <_Version>1.00</_Version>
+            <_PublicationDate>2025-08-13T02:16:09+02:00</_PublicationDate>
+        </_Model>
+    </_Models>
+    <_Aliases>
+        <_Alias>
+            <_value>i=1</_value>
+            <_Alias>Boolean</_Alias>
+        </_Alias>
+        <_Alias>
+            <_value>i=6</_value>
+            <_Alias>Int32</_Alias>
+        </_Alias>
+        <_Alias>
+            <_value>i=13</_value>
+            <_Alias>DateTime</_Alias>
+        </_Alias>
+        <_Alias>
+            <_value>i=12</_value>
+            <_Alias>String</_Alias>
+        </_Alias>
+        <_Alias>
+            <_value>i=15</_value>
+            <_Alias>ByteString</_Alias>
+        </_Alias>
+        <_Alias>
+            <_value>i=47</_value>
+            <_Alias>HasComponent</_Alias>
+        </_Alias>
+        <_Alias>
+            <_value>i=46</_value>
+            <_Alias>HasProperty</_Alias>
+        </_Alias>
+        <_Alias>
+            <_value>i=35</_value>
+            <_Alias>Organizes</_Alias>
+        </_Alias>
+        <_Alias>
+            <_value>i=45</_value>
+            <_Alias>HasSubtype</_Alias>
+        </_Alias>
+        <_Alias>
+            <_value>i=40</_value>
+            <_Alias>HasTypeDefinition</_Alias>
+        </_Alias>
+        <_Alias>
+            <_value>i=37</_value>
+            <_Alias>HasModellingRule</_Alias>
+        </_Alias>
+        <_Alias>
+            <_value>i=38</_value>
+            <_Alias>HasEncoding</_Alias>
+        </_Alias>
+        <_Alias>
+            <_value>i=39</_value>
+            <_Alias>HasDescription</_Alias>
+        </_Alias>
+    </_Aliases>
+    <_Extensions>
+        <_Extension>
             <si:Generator>[object Object]</si:Generator>
-        </Extension>
-        <Extension>
+        </_Extension>
+        <_Extension>
             <si:GeneratorExtension>[object Object]</si:GeneratorExtension>
-        </Extension>
-    </Extensions>
+        </_Extension>
+    </_Extensions>
+    <_LastModified>2025-08-13T00:39:28.546Z</_LastModified>
 </UANodeSet>
