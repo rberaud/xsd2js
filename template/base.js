@@ -239,4 +239,29 @@ export class Base {
 
     return obj;
   }
+
+  // --- Notification subscription API ---
+  // Subscribers receive an object: { target, property, oldValue, newValue }
+  subscribe(callback) {
+    if (!this.__subscribers) this.__subscribers = new Map();
+    const token = Symbol();
+    this.__subscribers.set(token, callback);
+    return token;
+  }
+
+  unsubscribe(token) {
+    if (!this.__subscribers) return false;
+    return this.__subscribers.delete(token);
+  }
+
+  _notify(property, oldValue, newValue) {
+    if (!this.__subscribers) return;
+    for (const cb of this.__subscribers.values()) {
+      try {
+        cb({ target: this, property, oldValue, newValue });
+      } catch (e) {
+        // swallow subscriber errors to avoid breaking host code
+      }
+    }
+  }
 }

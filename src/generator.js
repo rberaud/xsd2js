@@ -175,15 +175,22 @@ export function buildClassCode(typeDef, config, schemaObj) {
     ? properties
         .map((p) => {
           const name = p.name;
-          // Build setter body mirroring constructor coercion logic when needed
+          const notify = !!config["accessors-notification"];
+          // Helper to wrap assignment with notification
+          const wrapNotify = (assignExpr) =>
+            notify
+              ? `var oldVal = this._${name};\n        ${assignExpr}\n        this._notify("${name}", oldVal, this._${name});`
+              : assignExpr;
+
+          // Build getter/setter
           if (p.xmlName === "#text") {
             return `    get ${name}() { return this._${name}; }
-    set ${name}(v) { this._${name} = v; }`;
+    set ${name}(v) { ${wrapNotify(`this._${name} = v;`)} }`;
           }
           const isPrimitive = !!XSD_TYPE_TO_JS[p.type];
           if (isPrimitive) {
             return `    get ${name}() { return this._${name}; }
-    set ${name}(v) { this._${name} = v; }`;
+    set ${name}(v) { ${wrapNotify(`this._${name} = v;`)} }`;
           }
           if (p.type) {
             const dependencyName = p.type.startsWith("xs:")
@@ -192,20 +199,24 @@ export function buildClassCode(typeDef, config, schemaObj) {
             if (p.isList) {
               if (XSD_TYPE_TO_JS[p.type]) {
                 return `    get ${name}() { return this._${name}; }
-    set ${name}(v) { this._${name} = v ? [].concat(v) : []; }`;
+    set ${name}(v) { ${wrapNotify(`this._${name} = v ? [].concat(v) : [];`)} }`;
               }
               return `    get ${name}() { return this._${name}; }
-    set ${name}(v) { this._${name} = v ? [].concat(v).map(item => item instanceof ${dependencyName} ? item : new ${dependencyName}(item)) : []; }`;
+    set ${name}(v) { ${wrapNotify(
+                `this._${name} = v ? [].concat(v).map(item => item instanceof ${dependencyName} ? item : new ${dependencyName}(item)) : [];`
+              )} }`;
             }
             if (XSD_TYPE_TO_JS[p.type]) {
               return `    get ${name}() { return this._${name}; }
-    set ${name}(v) { this._${name} = v; }`;
+    set ${name}(v) { ${wrapNotify(`this._${name} = v;`)} }`;
             }
             return `    get ${name}() { return this._${name}; }
-    set ${name}(v) { this._${name} = v ? (v instanceof ${dependencyName} ? v : new ${dependencyName}(v)) : undefined; }`;
+    set ${name}(v) { ${wrapNotify(
+              `this._${name} = v ? (v instanceof ${dependencyName} ? v : new ${dependencyName}(v)) : undefined;`
+            )} }`;
           }
           return `    get ${name}() { return this._${name}; }
-    set ${name}(v) { this._${name} = v; }`;
+    set ${name}(v) { ${wrapNotify(`this._${name} = v;`)} }`;
         })
         .join("\n\n")
     : "";

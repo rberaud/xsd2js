@@ -33,6 +33,7 @@ beforeAll(async () => {
     "text-attribute-name": "value",
     onlyString: true,
     "generate-accessors": true,
+    "accessors-notification": true,
   };
   // // Read and parse XSD
   const xsdContent = fs.readFileSync(xsdFile, "utf-8");

@@ -110,6 +110,12 @@ function parseArguments() {
       type: "boolean",
       default: true,
     })
+    .option("accessors-notification", {
+      describe:
+        "When true (and when generate-accessors is enabled) generated setters will emit change notifications to subscribers",
+      type: "boolean",
+      default: true,
+    })
     .option("only-string", {
       describe:
         "Disable type conversion for all values from the XML file. All values will be strings.",
