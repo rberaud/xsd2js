@@ -179,7 +179,7 @@ export function buildClassCode(typeDef, config, schemaObj) {
           // Helper to wrap assignment with notification
           const wrapNotify = (assignExpr) =>
             notify
-              ? `var oldVal = this._${name};\n        ${assignExpr}\n        this._notify("${name}", oldVal, this._${name});`
+              ? `var oldVal = this._${name};\n        ${assignExpr}\n        if (this._notifyPropertyChanged) this._notifyPropertyChanged("${name}", oldVal, this._${name});`
               : assignExpr;
 
           // Build getter/setter

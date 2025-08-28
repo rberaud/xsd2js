@@ -241,11 +241,12 @@ export class Base {
   }
 
   // --- Notification subscription API ---
-  // Subscribers receive an object: { target, property, oldValue, newValue }
-  subscribe(callback) {
+  // Subscribers can be either a function or an object with an `onPropertyChange` method.
+  // For property changes we call `onPropertyChange({ target, property, oldValue, newValue })`.
+  subscribe(listener) {
     if (!this.__subscribers) this.__subscribers = new Map();
     const token = Symbol();
-    this.__subscribers.set(token, callback);
+    this.__subscribers.set(token, listener);
     return token;
   }
 
@@ -254,11 +255,24 @@ export class Base {
     return this.__subscribers.delete(token);
   }
 
-  _notify(property, oldValue, newValue) {
+  _notifyPropertyChanged(property, oldValue, newValue) {
     if (!this.__subscribers) return;
-    for (const cb of this.__subscribers.values()) {
+    for (const listener of this.__subscribers.values()) {
       try {
-        cb({ target: this, property, oldValue, newValue });
+        if (typeof listener === "function") {
+          // legacy: function(listener) receives the event object
+          listener({ target: this, property, oldValue, newValue });
+        } else if (
+          listener &&
+          typeof listener.onPropertyChange === "function"
+        ) {
+          listener.onPropertyChange({
+            target: this,
+            property,
+            oldValue,
+            newValue,
+          });
+        }
       } catch (e) {
         // swallow subscriber errors to avoid breaking host code
       }

@@ -54,7 +54,7 @@ export class ${typeName} {
           const notify = !!config["accessors-notification"];
           if (!notify)
             return `get value() { return this._value; }\n    set value(v) { this._value = v; }`;
-          return `get value() { return this._value; }\n    set value(v) { var oldVal = this._value; this._value = v; if (this._notify) this._notify('value', oldVal, this._value); }`;
+          return `get value() { return this._value; }\n    set value(v) { var oldVal = this._value; this._value = v; if (this._notifyPropertyChanged) this._notifyPropertyChanged('value', oldVal, this._value); }`;
         })()}
 
     toString() {
