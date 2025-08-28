@@ -111,13 +111,9 @@ export class Base {
       // Retrieve merged metadata for the class (includes superclasses)
       const meta = getMergedXSDMeta(node.constructor) || {};
 
-      for (const key in node) {
-        if (
-          !Object.prototype.hasOwnProperty.call(node, key) ||
-          typeof node[key] === "function"
-        )
-          continue;
-
+      // Iterate over metadata keys, not instance fields, to support accessor-backed properties
+      for (const key of Object.keys(meta)) {
+        // Use accessor (getter) for value
         const value = node[key];
         if (value === undefined || value === null) continue;
 
@@ -206,13 +202,8 @@ export class Base {
       ? this.constructor.__getXSDMeta()
       : {};
 
-    for (const key in this) {
-      if (
-        !Object.prototype.hasOwnProperty.call(this, key) ||
-        typeof this[key] === "function"
-      )
-        continue;
-
+    // Iterate over metadata keys so accessors are used when present (backing fields ignored)
+    for (const key of Object.keys(meta)) {
       const value = this[key];
       if (value === undefined || value === null) continue; // Skip undefined or null values
 
