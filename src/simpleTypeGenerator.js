@@ -14,6 +14,7 @@
 
 import { ensureArray } from "./utils.js";
 import { XSD_PREFIX } from "./constants.js";
+import { enumClass, aliasClass } from "./codeTemplate.js";
 
 /**
  * Builds the code for a single simpleType (enum, alias, list, or union).
@@ -28,55 +29,22 @@ export function buildSimpleTypeCode(typeDef, config = {}) {
   // Handle enums defined with <xs:restriction>
   if (restriction && restriction[`${XSD_PREFIX}enumeration`]) {
     const enums = ensureArray(restriction[`${XSD_PREFIX}enumeration`]);
-    const values = enums.map((e) => `'${e["@_value"]}'`).join(", ");
-    //    const baseType = restriction["@_base"]?.replace(/^.*:/, "") || "string";
-
+    const values = enums.map((e) => e["@_value"]);
     const useAccessors = !!config["generate-accessors"];
-    const code = `
-export class ${typeName} {
-    /**
-     * @param {string} value
-     */
-    constructor(value) {
-        if (!${typeName}.values.includes(value)) {
-            // Optional: throw an error for invalid enum values.
-            // console.warn(\`Invalid value for ${typeName}: \${value}\`);
-        }
-        ${useAccessors ? "this._value = value;" : "this.value = value;"}
-    }
-
-    static get values() {
-        return [${values}];
-    }
-
-        ${(() => {
-          if (!useAccessors) return "";
-          const notify = !!config["accessors-notification"];
-          if (!notify)
-            return `get value() { return this._value; }\n    set value(v) { this._value = v; }`;
-          return `get value() { return this._value; }\n    set value(v) { var oldVal = this._value; this._value = v; if (this._notifyPropertyChanged) this._notifyPropertyChanged('value', oldVal, this._value); }`;
-        })()}
-
-    toString() {
-        return ${useAccessors ? "this._value" : "this.value"};
-    }
-}
-`;
+    const notify = !!config["accessors-notification"];
+    const code = enumClass({
+      typeName,
+      valuesArray: values,
+      useAccessors,
+      notify,
+    });
     return { typeName, code };
   }
 
   // Handle simple type aliases (e.g., type="xs:string")
   if (restriction && restriction["@_base"]) {
     const baseType = restriction["@_base"].replace(/^.*:/, "");
-    const code = `
-/**
- * Represents the XSD simpleType '${typeName}' which is an alias for '${baseType}'.
- */
-export class ${typeName} extends String {
-    // This is essentially a type alias. Using a class wrapper allows for type checking.
-    // Extending String allows it to behave like a string in most contexts.
-}
-`;
+    const code = aliasClass({ typeName, baseType });
     return { typeName, code };
   }
 

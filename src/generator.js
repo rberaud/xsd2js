@@ -20,6 +20,12 @@
 import { XSD_PREFIX, XSD_TYPE_TO_JS } from "./constants.js";
 import { ensureArray } from "./utils.js";
 import { extractProperties } from "./propertyExtractor.js";
+import {
+  complexClass,
+  buildConstructorBody,
+  buildAccessorsCode,
+  buildMetadata as templateBuildMetadata,
+} from "./codeTemplate.js";
 // The simple type generator is now in its own file.
 // import { buildSimpleTypeCode } from "./simpleTypeGenerator.js";
 
@@ -35,87 +41,11 @@ export { buildSimpleTypeCode } from "./simpleTypeGenerator.js";
  * @param {Set<string>} dependencies - Set to collect names of other classes this class depends on (for imports).
  * @returns {string} The constructor body code as a string, initializing all properties.
  */
-function buildConstructor(properties, dependencies, generateAccessors) {
-  return properties
-    .map((prop) => {
-      const isPrimitive = !!XSD_TYPE_TO_JS[prop.type];
-      // Handle text content nodes like <xs:simpleContent base="xs:string"> mapped to xmlName '#text'
-      if (prop.xmlName === "#text") {
-        // prefer normalized '#text' key, fall back to property name for compatibility
-        if (generateAccessors) {
-          return `this._${prop.name} = data["#text"] !== undefined ? data["#text"] : data.${prop.name};`;
-        }
-        return `this.${prop.name} = data["#text"] !== undefined ? data["#text"] : data.${prop.name};`;
-      }
-
-      if (isPrimitive) {
-        if (prop.isAttribute) {
-          return generateAccessors
-            ? `this._${prop.name} = data["${prop.xmlName}"];`
-            : `this.${prop.name} = data["${prop.xmlName}"];`;
-        }
-        return generateAccessors
-          ? `this._${prop.name} = data.${prop.name};`
-          : `this.${prop.name} = data.${prop.name};`;
-      }
-      if (prop.type) {
-        const dependencyName = prop.type.startsWith("xs:")
-          ? XSD_TYPE_TO_JS[prop.type]
-          : prop.type.split(":").pop();
-        if (!XSD_TYPE_TO_JS[prop.type]) {
-          dependencies.add(dependencyName);
-        }
-        if (prop.isList) {
-          if (XSD_TYPE_TO_JS[prop.type]) {
-            return generateAccessors
-              ? `this._${prop.name} = data.${prop.name} ? [].concat(data.${prop.name}) : [];`
-              : `this.${prop.name} = data.${prop.name} ? [].concat(data.${prop.name}) : [];`;
-          }
-          return generateAccessors
-            ? `this._${prop.name} = data.${prop.name} ? [].concat(data.${prop.name}).map(item => new ${dependencyName}(item)) : [];`
-            : `this.${prop.name} = data.${prop.name} ? [].concat(data.${prop.name}).map(item => new ${dependencyName}(item)) : [];`;
-        }
-        // Handle both direct data and data under the xmlName for flexibility
-        const dataAccess = `data["${prop.xmlName}"] || data["${prop.name}"]`;
-        if (XSD_TYPE_TO_JS[prop.type]) {
-          return generateAccessors
-            ? `this._${prop.name} = ${dataAccess};`
-            : `this.${prop.name} = ${dataAccess};`;
-        }
-        return generateAccessors
-          ? `this._${prop.name} = ${dataAccess} ? new ${dependencyName}(${dataAccess}) : undefined;`
-          : `this.${prop.name} = ${dataAccess} ? new ${dependencyName}(${dataAccess}) : undefined;`;
-      }
-      // Handle properties with no type (e.g. from <xs:any>)
-      return generateAccessors
-        ? `this._${prop.name} = data.${prop.name};`
-        : `this.${prop.name} = data.${prop.name};`;
-    })
-    .map((line) => `        ${line}`)
-    .join("\n");
-}
+// constructor/body/accessors/metadata are delegated to template helpers
 
 /**
- * Builds the static metadata method string for a generated class.
- *
- * @param {Array<object>} properties - List of property descriptors for the class.
- * @returns {string} The static metadata method code, exposing XSD property info for introspection.
+ * Metadata generation delegated to template helpers (see src/codeTemplate.js).
  */
-function buildMetadata(properties) {
-  const metaObj = {};
-  properties.forEach((p) => {
-    metaObj[p.name] = {
-      xmlName: p.xmlName || p.name,
-      xsdType: p.xsdType,
-      isAttribute: p.isAttribute,
-      isList: p.isList,
-    };
-  });
-  return `
-    static #__xsdMeta = ${JSON.stringify(metaObj, null, 4)};
-    static __getXSDMeta() { return this.#__xsdMeta; }
-`;
-}
 
 /**
  * Builds a map of named groups or attributeGroups from the XSD schema.
@@ -162,79 +92,21 @@ export function buildClassCode(typeDef, config, schemaObj) {
 
   // Use the new, clean property extractor
   const properties = extractProperties(typeDef, config, groupMap, attrGroupMap);
-  const constructorBody = buildConstructor(
+  const constructorBody = buildConstructorBody(
     properties,
     dependencies,
     !!config["generate-accessors"]
   );
-  const metaMethod = buildMetadata(properties);
+  const accessorsCode = buildAccessorsCode(properties, config);
+  const metaMethod = templateBuildMetadata(properties);
 
-  // The final code assembly is now much clearer
-  // If accessors requested, emit getter/setter methods for each property that delegate to hidden backing fields.
-  const accessorsCode = config["generate-accessors"]
-    ? properties
-        .map((p) => {
-          const name = p.name;
-          const notify = !!config["accessors-notification"];
-          // Helper to wrap assignment with notification
-          const wrapNotify = (assignExpr) =>
-            notify
-              ? `var oldVal = this._${name};\n        ${assignExpr}\n        if (this._notifyPropertyChanged) this._notifyPropertyChanged("${name}", oldVal, this._${name});`
-              : assignExpr;
-
-          // Build getter/setter
-          if (p.xmlName === "#text") {
-            return `    get ${name}() { return this._${name}; }
-    set ${name}(v) { ${wrapNotify(`this._${name} = v;`)} }`;
-          }
-          const isPrimitive = !!XSD_TYPE_TO_JS[p.type];
-          if (isPrimitive) {
-            return `    get ${name}() { return this._${name}; }
-    set ${name}(v) { ${wrapNotify(`this._${name} = v;`)} }`;
-          }
-          if (p.type) {
-            const dependencyName = p.type.startsWith("xs:")
-              ? XSD_TYPE_TO_JS[p.type]
-              : p.type.split(":").pop();
-            if (p.isList) {
-              if (XSD_TYPE_TO_JS[p.type]) {
-                return `    get ${name}() { return this._${name}; }
-    set ${name}(v) { ${wrapNotify(`this._${name} = v ? [].concat(v) : [];`)} }`;
-              }
-              return `    get ${name}() { return this._${name}; }
-    set ${name}(v) { ${wrapNotify(
-                `this._${name} = v ? [].concat(v).map(item => item instanceof ${dependencyName} ? item : new ${dependencyName}(item)) : [];`
-              )} }`;
-            }
-            if (XSD_TYPE_TO_JS[p.type]) {
-              return `    get ${name}() { return this._${name}; }
-    set ${name}(v) { ${wrapNotify(`this._${name} = v;`)} }`;
-            }
-            return `    get ${name}() { return this._${name}; }
-    set ${name}(v) { ${wrapNotify(
-              `this._${name} = v ? (v instanceof ${dependencyName} ? v : new ${dependencyName}(v)) : undefined;`
-            )} }`;
-          }
-          return `    get ${name}() { return this._${name}; }
-    set ${name}(v) { ${wrapNotify(`this._${name} = v;`)} }`;
-        })
-        .join("\n\n")
-    : "";
-
-  const code = `
-class ${className} extends ${parentClass} {
-    /**
-     * @param {Object} [data]
-     */
-    constructor(data = {}) {
-        super(data);
-${constructorBody}
-    }
-
-${accessorsCode}
-
-${metaMethod}
-}`;
+  const code = complexClass({
+    className,
+    parentClass,
+    constructorBody,
+    accessorsCode,
+    metaMethod,
+  });
 
   return { className, code, dependencies };
 }
