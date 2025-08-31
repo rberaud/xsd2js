@@ -14,7 +14,7 @@
 
 import { ensureArray } from "./utils.js";
 import { XSD_PREFIX } from "./constants.js";
-import { enumClass, aliasClass } from "./codeTemplate.js";
+import { templateEnumClass, templateAliasClass } from "./codeTemplate.js";
 
 /**
  * Builds the code for a single simpleType (enum, alias, list, or union).
@@ -32,7 +32,7 @@ export function buildSimpleTypeCode(typeDef, config = {}) {
     const values = enums.map((e) => e["@_value"]);
     const useAccessors = !!config["generate-accessors"];
     const notify = !!config["accessors-notification"];
-    const code = enumClass({
+    const code = templateEnumClass({
       typeName,
       valuesArray: values,
       useAccessors,
@@ -44,7 +44,7 @@ export function buildSimpleTypeCode(typeDef, config = {}) {
   // Handle simple type aliases (e.g., type="xs:string")
   if (restriction && restriction["@_base"]) {
     const baseType = restriction["@_base"].replace(/^.*:/, "");
-    const code = aliasClass({ typeName, baseType });
+    const code = templateAliasClass({ typeName, baseType });
     return { typeName, code };
   }
 

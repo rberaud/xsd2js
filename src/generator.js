@@ -21,10 +21,10 @@ import { XSD_PREFIX, XSD_TYPE_TO_JS } from "./constants.js";
 import { ensureArray } from "./utils.js";
 import { extractProperties } from "./propertyExtractor.js";
 import {
-  complexClass,
-  buildConstructorBody,
-  buildAccessorsCode,
-  buildMetadata as templateBuildMetadata,
+  templateComplexClass,
+  templateConstructorBody,
+  templateAccessorsCode,
+  templateMetadata,
 } from "./codeTemplate.js";
 // The simple type generator is now in its own file.
 // import { buildSimpleTypeCode } from "./simpleTypeGenerator.js";
@@ -92,15 +92,15 @@ export function buildClassCode(typeDef, config, schemaObj) {
 
   // Use the new, clean property extractor
   const properties = extractProperties(typeDef, config, groupMap, attrGroupMap);
-  const constructorBody = buildConstructorBody(
+  const constructorBody = templateConstructorBody(
     properties,
     dependencies,
     !!config["generate-accessors"]
   );
-  const accessorsCode = buildAccessorsCode(properties, config);
-  const metaMethod = templateBuildMetadata(properties);
+  const accessorsCode = templateAccessorsCode(properties, config);
+  const metaMethod = templateMetadata(properties);
 
-  const code = complexClass({
+  const code = templateComplexClass({
     className,
     parentClass,
     constructorBody,

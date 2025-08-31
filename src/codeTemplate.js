@@ -1,6 +1,13 @@
 import { XSD_TYPE_TO_JS } from "./constants.js";
 
-export function complexClass({
+/**
+ * Returns the source code string for a complex class declaration.
+ * Naming: templateComplexClass to avoid generic `build`/`create` prefixes used elsewhere.
+ *
+ * @param {{className:string,parentClass?:string,constructorBody?:string,accessorsCode?:string,metaMethod?:string}} opts
+ * @returns {string} JavaScript source for the class declaration
+ */
+export function templateComplexClass({
   className,
   parentClass = "Base",
   constructorBody = "",
@@ -10,7 +17,18 @@ export function complexClass({
   return `\nclass ${className} extends ${parentClass} {\n    /**\n     * @param {Object} [data]\n     */\n    constructor(data = {}) {\n        super(data);\n${constructorBody}\n    }\n\n${accessorsCode}\n\n${metaMethod}\n}`;
 }
 
-export function buildConstructorBody(
+/**
+ * Produce the constructor body lines for a generated class.
+ * Use `templateConstructorBody` (prefix `template` to avoid `build*` collision across modules).
+ *
+ * Inputs:
+ *  - properties: array of property descriptors (name, type, xmlName, isList, isAttribute, isAny)
+ *  - dependencies: Set to collect names of other generated classes referenced in the constructor
+ *  - generateAccessors: boolean, whether properties are backed by private fields
+ *
+ * Output: a string with indented constructor statements.
+ */
+export function templateConstructorBody(
   properties,
   dependencies,
   generateAccessors
@@ -70,7 +88,15 @@ export function buildConstructorBody(
     .join("\n");
 }
 
-export function buildAccessorsCode(properties, config = {}) {
+/**
+ * Produce getter/setter source fragments for properties when accessors are requested.
+ * Function name: templateAccessorsCode to keep a clear template-oriented naming (no `build*` clash).
+ *
+ * @param {Array<object>} properties
+ * @param {object} config
+ * @returns {string} combined accessors source for the class
+ */
+export function templateAccessorsCode(properties, config = {}) {
   if (!config["generate-accessors"]) return "";
   const notifyEnabled = !!config["accessors-notification"];
   return properties
@@ -122,7 +148,14 @@ export function buildAccessorsCode(properties, config = {}) {
     .join("\n\n");
 }
 
-export function buildMetadata(properties) {
+/**
+ * Generate the static XSD metadata block for a generated class.
+ * Name: templateMetadata to indicate it's a template helper producing metadata text.
+ *
+ * @param {Array<object>} properties
+ * @returns {string} source code fragment for static metadata and accessor
+ */
+export function templateMetadata(properties) {
   const metaObj = {};
   properties.forEach((p) => {
     metaObj[p.name] = {
@@ -140,7 +173,14 @@ export function buildMetadata(properties) {
   )};\n    static __getXSDMeta() { return this.#__xsdMeta; }\n`;
 }
 
-export function enumClass({
+/**
+ * Return the source code for a simple enum wrapper class.
+ * Naming: templateEnumClass to keep a consistent prefix with other helpers.
+ *
+ * @param {{typeName:string,valuesArray:Array<string>,useAccessors?:boolean,notify?:boolean}} opts
+ * @returns {string} source code for the enum class
+ */
+export function templateEnumClass({
   typeName,
   valuesArray,
   useAccessors = false,
@@ -160,6 +200,13 @@ export function enumClass({
   }; }\n}\n`;
 }
 
-export function aliasClass({ typeName, baseType }) {
+/**
+ * Return the source for a simple alias class (a typed string wrapper).
+ * Naming: templateAliasClass
+ *
+ * @param {{typeName:string,baseType:string}} opts
+ * @returns {string} source code for the alias class
+ */
+export function templateAliasClass({ typeName, baseType }) {
   return `/**\n * Represents the XSD simpleType '${typeName}' which is an alias for '${baseType}'.\n */\nexport class ${typeName} extends String {\n    // Alias wrapper - behaves like a string\n}\n`;
 }
