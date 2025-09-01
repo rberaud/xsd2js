@@ -66,12 +66,26 @@ export function templateConstructorBody(
               ? `this._${prop.name} = data.${prop.name} ? [].concat(data.${prop.name}) : [];`
               : `this.${prop.name} = data.${prop.name} ? [].concat(data.${prop.name}) : [];`;
           }
+          // If this property is xs:any preserve the raw normalized fragments (do not wrap)
+          if (prop.isAny) {
+            return generateAccessors
+              ? `this._${prop.name} = data.${prop.name} ? [].concat(data.${prop.name}) : [];`
+              : `this.${prop.name} = data.${prop.name} ? [].concat(data.${prop.name}) : [];`;
+          }
           return generateAccessors
             ? `this._${prop.name} = data.${prop.name} ? [].concat(data.${prop.name}).map(item => new ${dependencyName}(item)) : [];`
             : `this.${prop.name} = data.${prop.name} ? [].concat(data.${prop.name}).map(item => new ${dependencyName}(item)) : [];`;
         }
         const dataAccess = `data["${prop.xmlName}"] || data["${prop.name}"]`;
         if (XSD_TYPE_TO_JS[prop.type]) {
+          return generateAccessors
+            ? `this._${prop.name} = ${dataAccess};`
+            : `this.${prop.name} = ${dataAccess};`;
+        }
+        // If the property is xs:any prefer the raw/normalized object instead of
+        // constructing a typed instance so original XML subtree (and preserved
+        // __rawChildren) remain available at runtime.
+        if (prop.isAny) {
           return generateAccessors
             ? `this._${prop.name} = ${dataAccess};`
             : `this.${prop.name} = ${dataAccess};`;

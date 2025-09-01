@@ -59,6 +59,21 @@ function processContentModel(node, properties, processItem, groupMap) {
   });
 }
 
+// Recursively search a parsed XSD node for an <xs:any> entry.
+function containsXSDAny(node) {
+  if (!node || typeof node !== "object") return false;
+  if (node[`${XSD_PREFIX}any`]) return true;
+  for (const k of Object.keys(node)) {
+    const v = node[k];
+    if (Array.isArray(v)) {
+      for (const item of v) if (containsXSDAny(item)) return true;
+    } else if (typeof v === "object") {
+      if (containsXSDAny(v)) return true;
+    }
+  }
+  return false;
+}
+
 /**
  * Extracts property definitions from an XSD type node.
  * This is the main export of this module.
@@ -91,6 +106,14 @@ export function extractProperties(typeNode, config, groupMap, attrGroupMap) {
       return; // Skip duplicate properties
     }
 
+    // Detect if this element's (possibly anonymous) complexType contains an xs:any
+    // and mark the property so generators/runtime can preserve raw xml fragments.
+    const isAny = !!(
+      containsXSDAny(item) ||
+      (item[`${XSD_PREFIX}complexType`] &&
+        containsXSDAny(item[`${XSD_PREFIX}complexType`]))
+    );
+
     properties.push({
       name: userFacingName,
       xmlName: originalName,
@@ -100,6 +123,7 @@ export function extractProperties(typeNode, config, groupMap, attrGroupMap) {
       xsdType: item["@_type"],
       isAttribute,
       nillable: item["@_nillable"] === "true",
+      isAny,
     });
   };
 

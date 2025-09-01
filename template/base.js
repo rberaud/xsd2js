@@ -12,10 +12,22 @@ export function normalizeXml2js(node) {
   if (node.$) {
     for (const [k, v] of Object.entries(node.$)) result[`@_${k}`] = v;
   }
-  if (node._ !== undefined) result["#text"] = node._;
+  // When xml2js is used with explicitChildren/charsAsChildren the textual
+  // content is provided as child entries named '__text__'. Prefer those and
+  // collapse them into the normalized '#text' field instead of creating a
+  // '__text__' child element which later would be serialized as <__text__>.
+  if (node._ !== undefined && !Array.isArray(node.$$)) result["#text"] = node._;
   if (Array.isArray(node.$$)) {
     for (const child of node.$$) {
       const name = child["#name"];
+      // Collapse explicit text children into '#text'
+      if (name === "__text__") {
+        if (child._ !== undefined) {
+          if (result["#text"] === undefined) result["#text"] = child._;
+          else result["#text"] = String(result["#text"]) + String(child._);
+        }
+        continue;
+      }
       const copy = Object.assign({}, child);
       delete copy["#name"];
       const n = normalizeXml2js(copy);
@@ -27,8 +39,9 @@ export function normalizeXml2js(node) {
     // Preserve the raw xml2js children array on the normalized object so generated
     // constructors can access original raw nodes when needed (non-enumerable).
     try {
+      const filtered = node.$$.filter((c) => c["#name"] !== "__text__");
       Object.defineProperty(result, "__rawChildren", {
-        value: node.$$,
+        value: filtered,
         enumerable: false,
         writable: false,
       });
@@ -218,6 +231,19 @@ export class Base {
         const nm = forcedName || rawNode["#name"];
         const ind = "    ".repeat(lvl);
         if (!nm) return "";
+        // If xml2js produced a text child node named '__text__', emit its
+        // text content directly instead of creating a <__text__> element.
+        if (nm === "__text__") {
+          if (rawNode._ !== undefined)
+            return ind + escapeXML(String(rawNode._));
+          // If there are nested children, flatten them (rare) and return concatenated text/html
+          if (Array.isArray(rawNode.$$)) {
+            return rawNode.$$.map((c) =>
+              rawXml2jsNodeToXML(c, c["#name"], lvl)
+            ).join("\n");
+          }
+          return "";
+        }
         const parts = [];
         // attributes
         if (rawNode.$) {
