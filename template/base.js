@@ -24,6 +24,17 @@ export function normalizeXml2js(node) {
         result[name].push(n);
       } else result[name] = n;
     }
+    // Preserve the raw xml2js children array on the normalized object so generated
+    // constructors can access original raw nodes when needed (non-enumerable).
+    try {
+      Object.defineProperty(result, "__rawChildren", {
+        value: node.$$,
+        enumerable: false,
+        writable: false,
+      });
+    } catch (e) {
+      // ignore if defineProperty fails in some environments
+    }
   }
   const other = Object.keys(node).filter(
     (k) => k != "$" && k != "_" && k != "$$"
@@ -103,13 +114,173 @@ export class Base {
         return `${indent}<${nodeName}>${escapeXML(node)}</${nodeName}>`;
       }
 
+      // If this is a plain normalized xml2js node (not a Base instance),
+      // serialize it directly so nested children are preserved.
+      if (
+        !(node instanceof Base) &&
+        (node.__rawChildren ||
+          Object.keys(node).some((k) => k.startsWith("@_") || k === "#text"))
+      ) {
+        // Use buildAttributesAndChildren to produce attributes/text and children
+        const { attrs, text, childrenXml } = buildAttributesAndChildren(
+          node,
+          level + 1
+        );
+        // If raw children are available prefer serializing them to preserve namespaces and order
+        if (node.__rawChildren && node.__rawChildren.length) {
+          const childLines = node.__rawChildren.map((rc) =>
+            rawXml2jsNodeToXML(rc, rc["#name"], level + 1)
+          );
+          const opening = `${"    ".repeat(level)}<${nodeName}${
+            attrs ? " " + attrs : ""
+          }>`;
+          return childLines.length
+            ? `${opening}\n${childLines.join("\n")}\n${"    ".repeat(
+                level
+              )}</${nodeName}>`
+            : `${opening}</${nodeName}>`;
+        }
+        const opening = `${"    ".repeat(level)}<${nodeName}${
+          attrs ? " " + attrs : ""
+        }>`;
+        if (childrenXml)
+          return `${opening}\n${childrenXml}\n${"    ".repeat(
+            level
+          )}</${nodeName}>`;
+        if (text !== undefined)
+          return `${opening}${escapeXML(text)}</${nodeName}>`;
+        return `${opening}</${nodeName}>`;
+      }
+
       const indent = "    ".repeat(level); // 4 spaces per indentation level
       const attributes = [];
       let textContent = "";
       const children = [];
 
+      // Helper: detect a "normalized" xml2js node (the shape produced by normalizeXml2js)
+      function looksLikeNormalizedNode(v) {
+        if (!v || typeof v !== "object") return false;
+        // common markers: attribute keys starting with '@_' or '#text' or nested element keys
+        return Object.keys(v).some(
+          (k) => k.startsWith("@_") || k === "#text" || typeof v[k] === "object"
+        );
+      }
+
+      // Helper: build attributes string and children inner XML from a normalized node
+      function buildAttributesAndChildren(normNode, lvl) {
+        const attrParts = [];
+        let text = undefined;
+        const childLines = [];
+        for (const k of Object.keys(normNode)) {
+          if (k.startsWith("@_")) {
+            attrParts.push(
+              `${k.substring(2)}=\"${escapeXML(String(normNode[k]))}\"`
+            );
+          } else if (k === "#text") {
+            text = stringifyValue(normNode[k]);
+          } else {
+            const val = normNode[k];
+            if (Array.isArray(val)) {
+              val.forEach((item) => {
+                if (item === undefined || item === null) return;
+                if (typeof item === "object") {
+                  // recursively build child
+                  const child = generateXML(item, k, lvl);
+                  childLines.push(child);
+                } else {
+                  childLines.push(
+                    `${"    ".repeat(lvl)}<${k}>${escapeXML(
+                      String(item)
+                    )}</${k}>`
+                  );
+                }
+              });
+            } else {
+              if (typeof val === "object") {
+                childLines.push(generateXML(val, k, lvl));
+              } else {
+                childLines.push(
+                  `${"    ".repeat(lvl)}<${k}>${escapeXML(String(val))}</${k}>`
+                );
+              }
+            }
+          }
+        }
+        return {
+          attrs: attrParts.join(" "),
+          text,
+          childrenXml: childLines.join("\n"),
+        };
+      }
+
+      // Helper: serialize a raw xml2js child node (the shape produced when explicitChildren=true)
+      function rawXml2jsNodeToXML(rawNode, forcedName, lvl) {
+        const nm = forcedName || rawNode["#name"];
+        const ind = "    ".repeat(lvl);
+        if (!nm) return "";
+        const parts = [];
+        // attributes
+        if (rawNode.$) {
+          const attrPairs = Object.entries(rawNode.$).map(
+            ([k, v]) => `${k}=\"${escapeXML(String(v))}\"`
+          );
+          parts.push(
+            `${ind}<${nm}${attrPairs.length ? " " + attrPairs.join(" ") : ""}>`
+          );
+        } else {
+          parts.push(`${ind}<${nm}>`);
+        }
+        // text
+        if (rawNode._ !== undefined) {
+          parts.push(escapeXML(String(rawNode._)));
+        }
+        // children
+        if (Array.isArray(rawNode.$$)) {
+          for (const c of rawNode.$$) {
+            parts.push(rawXml2jsNodeToXML(c, c["#name"], lvl + 1));
+          }
+        }
+        parts.push(`${ind}</${nm}>`);
+        return parts.join("\n");
+      }
       // Retrieve merged metadata for the class (includes superclasses)
       const meta = getMergedXSDMeta(node.constructor) || {};
+
+      // If this is a plain normalized xml2js node (not a Base instance),
+      // serialize it directly so nested children are preserved.
+      if (
+        !(node instanceof Base) &&
+        (node.__rawChildren ||
+          Object.keys(node).some((k) => k.startsWith("@_") || k === "#text"))
+      ) {
+        const { attrs, text, childrenXml } = buildAttributesAndChildren(
+          node,
+          level + 1
+        );
+        if (node.__rawChildren && node.__rawChildren.length) {
+          const childLines = node.__rawChildren.map((rc) =>
+            rawXml2jsNodeToXML(rc, rc["#name"], level + 1)
+          );
+          const opening = `${"    ".repeat(level)}<${nodeName}${
+            attrs ? " " + attrs : ""
+          }>`;
+          return childLines.length
+            ? `${opening}\n${childLines.join("\n")}\n${"    ".repeat(
+                level
+              )}</${nodeName}>`
+            : `${opening}</${nodeName}>`;
+        }
+        const opening = `${"    ".repeat(level)}<${nodeName}${
+          attrs ? " " + attrs : ""
+        }>`;
+        if (childrenXml)
+          return `${opening}\n${childrenXml}\n${"    ".repeat(
+            level
+          )}</${nodeName}>`;
+        if (text !== undefined)
+          return `${opening}${escapeXML(text)}</${nodeName}>`;
+        return `${opening}</${nodeName}>`;
+      }
 
       // Iterate over metadata keys, not instance fields, to support accessor-backed properties
       for (const key of Object.keys(meta)) {
@@ -144,11 +315,48 @@ export class Base {
           // Handle nested objects (recursively process)
           children.push(generateXML(value, xmlName, level + 1));
         } else {
-          // Handle simple properties
-          const s = stringifyValue(value);
-          children.push(
-            `${indent}    <${xmlName}>${escapeXML(s)}</${xmlName}>`
-          );
+          // Handle simple properties or normalized xml fragments
+          if (looksLikeNormalizedNode(value)) {
+            const { attrs, text, childrenXml } = buildAttributesAndChildren(
+              value,
+              level + 1
+            );
+            const opening = `${indent}    <${xmlName}${
+              attrs ? " " + attrs : ""
+            }>`;
+            if (childrenXml) {
+              children.push(
+                `${opening}\n${childrenXml}\n${indent}    </${xmlName}>`
+              );
+            } else if (text !== undefined) {
+              children.push(`${opening}${escapeXML(text)}</${xmlName}>`);
+            } else {
+              children.push(`${opening}</${xmlName}>`);
+            }
+          } else if (value && value.__rawChildren) {
+            // The property holds a normalized object that also preserved the raw xml2js children
+            const childLines = [];
+            value.__rawChildren.forEach((rawChild) => {
+              childLines.push(
+                rawXml2jsNodeToXML(rawChild, rawChild["#name"], level + 1)
+              );
+            });
+            const opening = `${indent}    <${xmlName}>`;
+            if (childLines.length) {
+              children.push(
+                `${opening}\n${childLines.join(
+                  "\n"
+                )}\n${indent}    </${xmlName}>`
+              );
+            } else {
+              children.push(`${opening}</${xmlName}>`);
+            }
+          } else {
+            const s = stringifyValue(value);
+            children.push(
+              `${indent}    <${xmlName}>${escapeXML(s)}</${xmlName}>`
+            );
+          }
         }
       }
 
